@@ -1,17 +1,33 @@
+/*
+ *    Copyright 2017 Chimerapps
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ *
+ */
+
 package com.chimerapps.easypus.alexa
 
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler
 import com.chimerapps.easypus.alexa.error.DriverInternalError
 import com.chimerapps.easypus.alexa.error.SmartHomeError
+import com.chimerapps.easypus.alexa.model.EmptyPayload
 import com.chimerapps.easypus.alexa.model.SmartHomeReply
 import com.chimerapps.easypus.alexa.model.SmartHomeRequest
 import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
-
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
@@ -52,6 +68,7 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
     final override fun handleRequest(input: InputStream, output: OutputStream, context: Context) {
         try {
             val reply = doHandleRequest(input, context)
+            reply.header.name = reply.payload.name
             OutputStreamWriter(output, Charsets.UTF_8).use {
                 logger.debug("Handled request: {}", reply)
                 mapper.writeValue(it, reply)
@@ -92,7 +109,7 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
     }
 
     private fun makeError(e: SmartHomeError): SmartHomeReply {
-        return SmartHomeReply(e.header.copy(name = e.errorName), ObjectNode(mapper.nodeFactory))
+        return SmartHomeReply(e.header, EmptyPayload(e.errorName))
     }
 
 }

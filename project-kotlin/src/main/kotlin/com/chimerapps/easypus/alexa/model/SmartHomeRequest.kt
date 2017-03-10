@@ -1,3 +1,20 @@
+/*
+ *    Copyright 2017 Chimerapps
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ *
+ */
+
 package com.chimerapps.easypus.alexa.model
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -8,14 +25,12 @@ import com.fasterxml.jackson.databind.JsonNode
  */
 data class SmartHomeRequest(val header: SmartHomeHeader, val payload: JsonNode)
 
-data class SmartHomeHeader(val messageId: String, val name: String, val namespace: String, val payloadVersion: String)
+data class SmartHomeHeader(val messageId: String, var name: String, val namespace: String, val payloadVersion: String)
 
 //BASE
 open class BaseRequestPayload(val accessToken: String)
 
 open class ApplianceRequest(accessToken: String, val appliance: Appliance) : BaseRequestPayload(accessToken)
-data class Appliance(val applianceId: String, val additionalApplianceDetails: Map<String, String>)
-data class Value(val value: Double)
 
 //DISCOVERY
 class DiscoverAppliancesRequest(accessToken: String) : BaseRequestPayload(accessToken)
