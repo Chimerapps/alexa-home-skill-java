@@ -15,7 +15,7 @@
  *
  */
 
-package com.chimerapps.easypus.alexa.model
+package com.chimerapps.alexa.home.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 

@@ -15,9 +15,9 @@
  *
  */
 
-package com.chimerapps.easypus.alexa.error
+package com.chimerapps.alexa.home.error
 
-import com.chimerapps.easypus.alexa.model.SmartHomeHeader
+import com.chimerapps.alexa.home.model.SmartHomeHeader
 
 /**
  * @author Nicola Verbeeck

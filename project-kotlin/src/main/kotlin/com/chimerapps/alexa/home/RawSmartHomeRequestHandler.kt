@@ -15,15 +15,15 @@
  *
  */
 
-package com.chimerapps.easypus.alexa
+package com.chimerapps.alexa.home
 
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler
-import com.chimerapps.easypus.alexa.error.DriverInternalError
-import com.chimerapps.easypus.alexa.error.SmartHomeError
-import com.chimerapps.easypus.alexa.model.EmptyPayload
-import com.chimerapps.easypus.alexa.model.SmartHomeReply
-import com.chimerapps.easypus.alexa.model.SmartHomeRequest
+import com.chimerapps.alexa.home.error.DriverInternalError
+import com.chimerapps.alexa.home.error.SmartHomeError
+import com.chimerapps.alexa.home.model.EmptyPayload
+import com.chimerapps.alexa.home.model.SmartHomeReply
+import com.chimerapps.alexa.home.model.SmartHomeRequest
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -44,7 +44,7 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
             it.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             it
         }
-        val logger = LoggerFactory.getLogger(RawSmartHomeRequestHandler::class.java)
+        private val logger = LoggerFactory.getLogger(RawSmartHomeRequestHandler::class.java)
 
         private val NAMESPACE_DISCOVERY = "Alexa.ConnectedHome.Discovery"
         private val NAMESPACE_CONTROL = "Alexa.ConnectedHome.Control"
@@ -68,16 +68,18 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
     final override fun handleRequest(input: InputStream, output: OutputStream, context: Context) {
         try {
             val reply = doHandleRequest(input, context)
-            reply.header.name = reply.payload.name
-            OutputStreamWriter(output, Charsets.UTF_8).use {
-                logger.debug("Handled request: {}", reply)
-                mapper.writeValue(it, reply)
-            }
+            logger.debug("Handled request: {}", reply)
+            sendReply(output, reply)
         } catch (e: SmartHomeError) {
             logger.warn("Error while executing request: {}", e, e.errorName)
-            OutputStreamWriter(output, Charsets.UTF_8).use {
-                mapper.writeValue(it, makeError(e))
-            }
+            sendReply(output, makeError(e))
+        }
+    }
+
+    private fun sendReply(output: OutputStream, reply: SmartHomeReply) {
+        OutputStreamWriter(output, Charsets.UTF_8).use {
+            reply.header.name = reply.payload.name
+            mapper.writeValue(it, reply)
         }
     }
 
@@ -88,12 +90,18 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
         logger.debug("Lambda Request: {}", request)
         checkVersion(request)
 
-        return when (request.header.namespace) {
-            NAMESPACE_DISCOVERY -> onDiscovery(request, context)
-            NAMESPACE_CONTROL -> onControl(request, context)
-            NAMESPACE_QUERY -> onQuery(request, context)
-            NAMESPACE_SYSTEM -> onSystem(request, context)
-            else -> throw DriverInternalError(request.header, "Unknown namespace: ${request.header.namespace}")
+        try {
+            return when (request.header.namespace) {
+                NAMESPACE_DISCOVERY -> onDiscovery(request, context)
+                NAMESPACE_CONTROL -> onControl(request, context)
+                NAMESPACE_QUERY -> onQuery(request, context)
+                NAMESPACE_SYSTEM -> onSystem(request, context)
+                else -> throw DriverInternalError(request.header, "Unknown namespace: ${request.header.namespace}")
+            }
+        } catch(e: SmartHomeError) {
+            throw e
+        } catch(e: Throwable) {
+            throw DriverInternalError(request.header, "Internal error!", e)
         }
     }
 

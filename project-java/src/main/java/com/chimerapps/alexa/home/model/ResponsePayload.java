@@ -15,15 +15,24 @@
  *
  */
 
-package com.chimerapps.easypus.alexa.utils
+package com.chimerapps.alexa.home.model;
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author Nicola Verbeeck
  * @date 10/03/2017.
  */
-inline fun <reified T> ObjectMapper.readValue(payload: JsonNode): T {
-    return treeToValue(payload, T::class.java)
+public abstract class ResponsePayload {
+
+	@JsonIgnore
+	private final String name;
+
+	protected ResponsePayload(final String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
 }

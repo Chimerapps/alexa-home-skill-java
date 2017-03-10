@@ -15,7 +15,7 @@
  *
  */
 
-package com.chimerapps.easypus.alexa.model
+package com.chimerapps.alexa.home.model
 
 /**
  * @author Nicola Verbeeck

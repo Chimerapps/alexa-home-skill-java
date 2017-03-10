@@ -15,13 +15,13 @@
  *
  */
 
-package com.chimerapps.easypus.alexa
+package com.chimerapps.alexa.home
 
 import com.amazonaws.services.lambda.runtime.Context
-import com.chimerapps.easypus.alexa.error.SmartHomeError
-import com.chimerapps.easypus.alexa.error.UnsupportedOperationError
-import com.chimerapps.easypus.alexa.model.*
-import com.chimerapps.easypus.alexa.utils.readValue
+import com.chimerapps.alexa.home.model.*
+import com.chimerapps.alexa.home.error.SmartHomeError
+import com.chimerapps.alexa.home.error.UnsupportedOperationError
+import com.chimerapps.alexa.home.utils.readValue
 
 /**
  * @author Nicola Verbeeck
