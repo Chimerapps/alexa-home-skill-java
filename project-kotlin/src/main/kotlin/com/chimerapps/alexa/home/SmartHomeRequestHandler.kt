@@ -25,7 +25,7 @@ import com.chimerapps.alexa.home.utils.readValue
 
 /**
  * @author Nicola Verbeeck
- * @date 09/03/2017.
+ * Date 09/03/2017.
  */
 @Suppress("unused", "UNUSED_PARAMETER")
 abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {

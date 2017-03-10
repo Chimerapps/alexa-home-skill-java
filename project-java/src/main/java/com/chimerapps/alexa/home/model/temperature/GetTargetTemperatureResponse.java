@@ -18,12 +18,11 @@
 package com.chimerapps.alexa.home.model.temperature;
 
 import com.chimerapps.alexa.home.model.ResponsePayload;
-import com.chimerapps.alexa.home.model.TemperatureMode;
 import com.chimerapps.alexa.home.model.Value;
 
 /**
  * @author Nicola Verbeeck
- * @date 10/03/2017.
+ * Date 10/03/2017.
  */
 public class GetTargetTemperatureResponse extends ResponsePayload {
 

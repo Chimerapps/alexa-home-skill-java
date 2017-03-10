@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Nicola Verbeeck
- * @date 10/03/2017.
+ * Date 10/03/2017.
  */
 public class DiscoverAppliancesRequest extends ApplianceRequest {
 

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * @author Nicola Verbeeck
- * @date 10/03/2017.
+ * Date 10/03/2017.
  */
 public class SmartHomeRequest {
 	private final SmartHomeHeader header;

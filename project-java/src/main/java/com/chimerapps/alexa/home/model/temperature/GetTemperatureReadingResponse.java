@@ -22,7 +22,7 @@ import com.chimerapps.alexa.home.model.Value;
 
 /**
  * @author Nicola Verbeeck
- * @date 10/03/2017.
+ * Date 10/03/2017.
  */
 public class GetTemperatureReadingResponse extends ResponsePayload {
 

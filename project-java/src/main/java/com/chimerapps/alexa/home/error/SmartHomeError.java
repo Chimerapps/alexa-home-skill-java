@@ -21,7 +21,7 @@ import com.chimerapps.alexa.home.model.SmartHomeHeader;
 
 /**
  * @author Nicola Verbeeck
- * @date 09/03/2017.
+ * Date 09/03/2017.
  */
 public class SmartHomeError extends Exception {
 

@@ -19,7 +19,7 @@ package com.chimerapps.alexa.home.model;
 
 /**
  * @author Nicola Verbeeck
- * @date 10/03/2017.
+ * Date 10/03/2017.
  */
 public class EmptyPayload extends ResponsePayload {
 

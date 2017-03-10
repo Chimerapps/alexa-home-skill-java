@@ -35,7 +35,7 @@ import java.io.OutputStreamWriter
 
 /**
  * @author Nicola Verbeeck
- * @date 09/03/2017.
+ * Date 09/03/2017.
  */
 abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
 

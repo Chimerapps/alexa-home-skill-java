@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 
 /**
  * @author Nicola Verbeeck
- * @date 09/03/2017.
+ * Date 09/03/2017.
  */
 data class SmartHomeReply(val header: SmartHomeHeader, val payload: ResponsePayload)
 

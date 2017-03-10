@@ -52,7 +52,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * @author Nicola Verbeeck
- * @date 10/03/2017.
+ * Date 10/03/2017.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class SmartHomeRequestHandler extends RawSmartHomeRequestHandler {

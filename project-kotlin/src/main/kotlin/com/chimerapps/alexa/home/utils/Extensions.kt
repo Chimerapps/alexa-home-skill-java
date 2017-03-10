@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 
 /**
  * @author Nicola Verbeeck
- * @date 10/03/2017.
+ * Date 10/03/2017.
  */
 inline fun <reified T> ObjectMapper.readValue(payload: JsonNode): T {
     return treeToValue(payload, T::class.java)

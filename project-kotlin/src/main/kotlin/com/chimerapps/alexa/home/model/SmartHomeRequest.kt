@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode
 
 /**
  * @author Nicola Verbeeck
- * @date 09/03/2017.
+ * Date 09/03/2017.
  */
 data class SmartHomeRequest(val header: SmartHomeHeader, val payload: JsonNode)
 

@@ -41,7 +41,7 @@ import java.util.UUID;
 
 /**
  * @author Nicola Verbeeck
- * @date 10/03/2017.
+ * Date 10/03/2017.
  */
 public abstract class RawSmartHomeRequestHandler implements RequestStreamHandler {
 

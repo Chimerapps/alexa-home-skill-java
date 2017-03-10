@@ -21,7 +21,7 @@ import com.chimerapps.alexa.home.model.ResponsePayload;
 
 /**
  * @author Nicola Verbeeck
- * @date 10/03/2017.
+ * Date 10/03/2017.
  */
 public class GetLockStateResponse extends ResponsePayload {
 
