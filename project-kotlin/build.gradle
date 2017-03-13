@@ -1,8 +1,27 @@
-apply plugin: 'java-library'
+buildscript {
+    ext.kotlin_version = '1.1.0'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+plugins {
+    id "com.jfrog.bintray" version "1.7.3"
+}
+
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'kotlin'
 
 repositories {
     jcenter()
+}
+
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
 }
 
 dependencies {
@@ -15,15 +34,71 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 }
 
-buildscript {
-    ext.kotlin_version = '1.1.0'
-    repositories {
-        mavenCentral()
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    pkg {
+        repo = 'maven'
+        name = 'alexa-home-skill-kotlin'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/Chimerapps/alexa-home-skill-java'
+
+        version {
+            name = "1.0.2"
+            desc = "Alexa Home Skill kotlin library"
+            released = new Date()
+        }
     }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    publications = ['MyPublication']
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            name "Nicola Verbeeck"
+            email "nicola@chimerapps.com"
+            organization "Chimerapps"
+        }
     }
 }
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from 'docs/README.txt'
+}
+
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            artifact sourceJar {
+                classifier "sources"
+            }
+            artifact javadocJar
+            groupId 'com.chimerapps.alexa'
+            artifactId 'home-skill-kotlin'
+            version '1.0.2'
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Alexa Home Skill kotlin library')
+                root.appendNode('name', 'alexa-home-skill-kotlin')
+                root.appendNode('url', 'https://github.com/Chimerapps/alexa-home-skill-java')
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8

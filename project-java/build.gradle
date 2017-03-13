@@ -1,3 +1,9 @@
+plugins {
+    id "com.jfrog.bintray" version "1.7.3"
+}
+
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'java-library'
 
 repositories {
@@ -11,5 +17,71 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.7'
 }
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+    pkg {
+        repo = 'maven'
+        name = 'alexa-home-skill-java'
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/Chimerapps/alexa-home-skill-java'
+
+        version {
+            name = "1.0.0"
+            desc = "Alexa Home Skill java library"
+            released = new Date()
+        }
+    }
+    publications = ['MyPublication']
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            name "Nicola Verbeeck"
+            email "nicola@chimerapps.com"
+            organization "Chimerapps"
+        }
+    }
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        MyPublication(MavenPublication) {
+            from components.java
+            artifact sourceJar {
+                classifier "sources"
+            }
+            artifact javadocJar
+            groupId 'com.chimerapps.alexa'
+            artifactId 'home-skill-java'
+            version '1.0.0'
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Alexa Home Skill java library')
+                root.appendNode('name', 'alexa-home-skill-java')
+                root.appendNode('url', 'https://github.com/Chimerapps/alexa-home-skill-java')
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8

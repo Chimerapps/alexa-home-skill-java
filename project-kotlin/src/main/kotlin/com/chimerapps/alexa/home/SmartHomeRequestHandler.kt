@@ -18,9 +18,9 @@
 package com.chimerapps.alexa.home
 
 import com.amazonaws.services.lambda.runtime.Context
-import com.chimerapps.alexa.home.model.*
 import com.chimerapps.alexa.home.error.SmartHomeError
 import com.chimerapps.alexa.home.error.UnsupportedOperationError
+import com.chimerapps.alexa.home.model.*
 import com.chimerapps.alexa.home.utils.readValue
 
 /**
@@ -31,46 +31,46 @@ import com.chimerapps.alexa.home.utils.readValue
 abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
 
     @Throws(SmartHomeError::class)
-    protected fun handleDiscovery(header: SmartHomeHeader, request: DiscoverAppliancesRequest, context: Context): DiscoverAppliancesResponse = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleDiscovery(header: SmartHomeHeader, request: DiscoverAppliancesRequest, context: Context): DiscoverAppliancesResponse = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleGetLockState(header: SmartHomeHeader, request: GetLockStateRequest, context: Context): GetLockStateResponse = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleGetLockState(header: SmartHomeHeader, request: GetLockStateRequest, context: Context): GetLockStateResponse = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleGetTargetTemperature(header: SmartHomeHeader, request: GetTargetTemperatureRequest, context: Context): GetTargetTemperatureResponse = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleGetTargetTemperature(header: SmartHomeHeader, request: GetTargetTemperatureRequest, context: Context): GetTargetTemperatureResponse = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleGetTemperatureReading(header: SmartHomeHeader, request: GetTemperatureReadingRequest, context: Context): GetTemperatureReadingResponse = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleGetTemperatureReading(header: SmartHomeHeader, request: GetTemperatureReadingRequest, context: Context): GetTemperatureReadingResponse = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleHealthCheck(header: SmartHomeHeader, request: HealthCheckRequest, context: Context): HealthCheckResponse = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleHealthCheck(header: SmartHomeHeader, request: HealthCheckRequest, context: Context): HealthCheckResponse = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleSetLockState(header: SmartHomeHeader, request: SetLockStateRequest, context: Context): SetLockStateConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleSetLockState(header: SmartHomeHeader, request: SetLockStateRequest, context: Context): SetLockStateConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleIncrementTemperature(header: SmartHomeHeader, request: IncrementTargetTemperatureRequest, context: Context): IncrementPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleIncrementTemperature(header: SmartHomeHeader, request: IncrementTargetTemperatureRequest, context: Context): IncrementPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleDecrementTemperature(header: SmartHomeHeader, request: DecrementTargetTemperatureRequest, context: Context): DecrementTargetTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleDecrementTemperature(header: SmartHomeHeader, request: DecrementTargetTemperatureRequest, context: Context): DecrementTargetTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleDecrementPercentage(header: SmartHomeHeader, request: DecrementPercentageRequest, context: Context): DecrementPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleDecrementPercentage(header: SmartHomeHeader, request: DecrementPercentageRequest, context: Context): DecrementPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleIncrementPercentage(header: SmartHomeHeader, request: IncrementPercentageRequest, context: Context): IncrementPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleIncrementPercentage(header: SmartHomeHeader, request: IncrementPercentageRequest, context: Context): IncrementPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleSetPercentage(header: SmartHomeHeader, request: SetPercentageRequest, context: Context): SetPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleSetPercentage(header: SmartHomeHeader, request: SetPercentageRequest, context: Context): SetPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleTurnOn(header: SmartHomeHeader, request: TurnOnRequest, context: Context): TurnOnConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleTurnOn(header: SmartHomeHeader, request: TurnOnRequest, context: Context): TurnOnConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleTurnOff(header: SmartHomeHeader, request: TurnOffRequest, context: Context): TurnOffConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleTurnOff(header: SmartHomeHeader, request: TurnOffRequest, context: Context): TurnOffConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected fun handleSetTemperature(header: SmartHomeHeader, request: SetTargetTemperatureRequest, context: Context): SetTargetTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleSetTemperature(header: SmartHomeHeader, request: SetTargetTemperatureRequest, context: Context): SetTargetTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
     override fun onDiscovery(request: SmartHomeRequest, context: Context): SmartHomeReply {
