@@ -27,7 +27,7 @@ bintray {
         vcsUrl = 'https://github.com/Chimerapps/alexa-home-skill-java'
 
         version {
-            name = "1.0.0"
+            name = "1.0.3"
             desc = "Alexa Home Skill java library"
             released = new Date()
         }
@@ -71,7 +71,7 @@ publishing {
             artifact javadocJar
             groupId 'com.chimerapps.alexa'
             artifactId 'home-skill-java'
-            version '1.0.0'
+            version '1.0.3'
             pom.withXml {
                 def root = asNode()
                 root.appendNode('description', 'Alexa Home Skill java library')

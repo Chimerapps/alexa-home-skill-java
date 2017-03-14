@@ -43,6 +43,7 @@ import com.chimerapps.alexa.home.model.temperature.DecrementTargetTemperatureCon
 import com.chimerapps.alexa.home.model.temperature.DecrementTargetTemperatureRequest;
 import com.chimerapps.alexa.home.model.temperature.GetTargetTemperatureResponse;
 import com.chimerapps.alexa.home.model.temperature.GetTemperatureReadingResponse;
+import com.chimerapps.alexa.home.model.temperature.IncrementTargetTemperatureConfirmation;
 import com.chimerapps.alexa.home.model.temperature.IncrementTargetTemperatureRequest;
 import com.chimerapps.alexa.home.model.temperature.SetTargetTemperatureConfirmation;
 import com.chimerapps.alexa.home.model.temperature.SetTargetTemperatureRequest;
@@ -52,7 +53,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * @author Nicola Verbeeck
- * Date 10/03/2017.
+ *         Date 10/03/2017.
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class SmartHomeRequestHandler extends RawSmartHomeRequestHandler {
@@ -101,7 +102,7 @@ public class SmartHomeRequestHandler extends RawSmartHomeRequestHandler {
 		throw new UnsupportedOperationError(header, "Operation not supported");
 	}
 
-	protected IncrementPercentageConfirmation handleIncrementTemperature(final SmartHomeHeader header, final IncrementTargetTemperatureRequest request, final Context context) throws SmartHomeError {
+	protected IncrementTargetTemperatureConfirmation handleIncrementTemperature(final SmartHomeHeader header, final IncrementTargetTemperatureRequest request, final Context context) throws SmartHomeError {
 		throw new UnsupportedOperationError(header, "Operation not supported");
 	}
 

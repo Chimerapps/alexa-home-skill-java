@@ -49,7 +49,7 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
     protected open fun handleSetLockState(header: SmartHomeHeader, request: SetLockStateRequest, context: Context): SetLockStateConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    protected open fun handleIncrementTemperature(header: SmartHomeHeader, request: IncrementTargetTemperatureRequest, context: Context): IncrementPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+    protected open fun handleIncrementTemperature(header: SmartHomeHeader, request: IncrementTargetTemperatureRequest, context: Context): IncrementTargetTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
     protected open fun handleDecrementTemperature(header: SmartHomeHeader, request: DecrementTargetTemperatureRequest, context: Context): DecrementTargetTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
