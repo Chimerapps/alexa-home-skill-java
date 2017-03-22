@@ -30,6 +30,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -74,12 +76,12 @@ public abstract class RawSmartHomeRequestHandler implements RequestStreamHandler
 	public void handleRequest(final InputStream input, final OutputStream output, final Context context) throws IOException {
 		try {
 			logger.debug("handleRequest");
-			final SmartHomeReply reply = doHandleRequest(input, context);
+			final SmartHomeReply reply = doHandleRequest(new BufferedInputStream(input), context);
 			logger.debug("Handled request: {}", reply);
-			sendReply(output, reply);
+			sendReply(new BufferedOutputStream(output), reply);
 		} catch (final SmartHomeError e) {
 			logger.warn("Error while executing request: {}", e, e.getErrorName());
-			sendReply(output, makeError(e));
+			sendReply(new BufferedOutputStream(output), makeError(e));
 		}
 	}
 

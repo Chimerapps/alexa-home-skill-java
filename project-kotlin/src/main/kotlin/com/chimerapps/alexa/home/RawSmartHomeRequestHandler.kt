@@ -72,12 +72,12 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
     override fun handleRequest(input: InputStream, output: OutputStream, context: Context) {
         try {
             logger.debug("handleRequest")
-            val reply = doHandleRequest(input, context)
+            val reply = doHandleRequest(input.buffered(), context)
             logger.debug("Handled request: {}", reply)
-            sendReply(output, reply)
+            sendReply(output.buffered(), reply)
         } catch (e: SmartHomeError) {
             logger.warn("Error while executing request: {}", e, e.errorName)
-            sendReply(output, makeError(e))
+            sendReply(output.buffered(), makeError(e))
         }
     }
 
