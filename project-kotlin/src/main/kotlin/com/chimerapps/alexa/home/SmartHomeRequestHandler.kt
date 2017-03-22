@@ -22,6 +22,7 @@ import com.chimerapps.alexa.home.error.SmartHomeError
 import com.chimerapps.alexa.home.error.UnsupportedOperationError
 import com.chimerapps.alexa.home.model.*
 import com.chimerapps.alexa.home.utils.readValue
+import java.util.*
 
 /**
  * @author Nicola Verbeeck
@@ -75,12 +76,12 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
     @Throws(SmartHomeError::class)
     override fun onDiscovery(request: SmartHomeRequest, context: Context): SmartHomeReply {
         val actualRequest = mapper.readValue<DiscoverAppliancesRequest>(request.payload)
-        return SmartHomeReply(request.header, handleDiscovery(request.header, actualRequest, context))
+        return SmartHomeReply(request.header.copy(messageId = UUID.randomUUID().toString()), handleDiscovery(request.header, actualRequest, context))
     }
 
     @Throws(SmartHomeError::class)
     override fun onQuery(request: SmartHomeRequest, context: Context): SmartHomeReply {
-        return SmartHomeReply(request.header,
+        return SmartHomeReply(request.header.copy(messageId = UUID.randomUUID().toString()),
                 when (request.header.name) {
                     ACTION_GET_LOCK_STATE -> handleGetLockState(request.header, mapper.readValue<GetLockStateRequest>(request.payload), context)
                     ACTION_GET_TARGET_TEMPERATURE -> handleGetTargetTemperature(request.header, mapper.readValue<GetTargetTemperatureRequest>(request.payload), context)
@@ -91,7 +92,7 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
 
     @Throws(SmartHomeError::class)
     override fun onControl(request: SmartHomeRequest, context: Context): SmartHomeReply {
-        return SmartHomeReply(request.header,
+        return SmartHomeReply(request.header.copy(messageId = UUID.randomUUID().toString()),
                 when (request.header.name) {
                     ACTION_SET_LOCK_STATE -> handleSetLockState(request.header, mapper.readValue<SetLockStateRequest>(request.payload), context)
                     ACTION_SET_TARGET_TEMPERATURE -> handleSetTemperature(request.header, mapper.readValue<SetTargetTemperatureRequest>(request.payload), context)
@@ -109,7 +110,7 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
 
     @Throws(SmartHomeError::class)
     override fun onSystem(request: SmartHomeRequest, context: Context): SmartHomeReply {
-        return SmartHomeReply(request.header,
+        return SmartHomeReply(request.header.copy(messageId = UUID.randomUUID().toString()),
                 when (request.header.name) {
                     ACTION_HEALTH_CHECK -> handleHealthCheck(request.header, mapper.readValue<HealthCheckRequest>(request.payload), context)
                     else -> throw UnsupportedOperationError(request.header, "Unknown name: ${request.header.name}")

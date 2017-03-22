@@ -18,6 +18,7 @@
 package com.chimerapps.alexa.home.model
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
  * @author Nicola Verbeeck
@@ -89,6 +90,6 @@ class TurnOffConfirmation
     : ResponsePayload("TurnOffConfirmation")
 
 //SYSTEM - Health
-data class HealthCheckResponse(val isHealthy: Boolean,
+data class HealthCheckResponse(@get:JsonProperty("isHealthy") val isHealthy: Boolean,
                                val description: String)
     : ResponsePayload("HealthCheckResponse")

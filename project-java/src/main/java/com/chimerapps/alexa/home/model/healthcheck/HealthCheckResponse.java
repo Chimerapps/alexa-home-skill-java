@@ -18,10 +18,11 @@
 package com.chimerapps.alexa.home.model.healthcheck;
 
 import com.chimerapps.alexa.home.model.ResponsePayload;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Nicola Verbeeck
- * Date 10/03/2017.
+ *         Date 10/03/2017.
  */
 public class HealthCheckResponse extends ResponsePayload {
 
@@ -35,6 +36,7 @@ public class HealthCheckResponse extends ResponsePayload {
 		this.description = description;
 	}
 
+	@JsonProperty("isHealthy")
 	public boolean isHealthy() {
 		return isHealthy;
 	}

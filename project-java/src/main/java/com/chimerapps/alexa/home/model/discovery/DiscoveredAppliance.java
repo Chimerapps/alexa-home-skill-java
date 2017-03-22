@@ -32,6 +32,7 @@ public class DiscoveredAppliance extends Appliance {
 	private final Collection<String> actions;
 	private final String friendlyDescription;
 	private final String friendlyName;
+	@JsonProperty("isReachable")
 	private final boolean isReachable;
 	private final String manufacturerName;
 	private final String modelName;
@@ -70,6 +71,7 @@ public class DiscoveredAppliance extends Appliance {
 		return friendlyName;
 	}
 
+	@JsonProperty("isReachable")
 	public boolean isReachable() {
 		return isReachable;
 	}
@@ -85,4 +87,5 @@ public class DiscoveredAppliance extends Appliance {
 	public String getVersion() {
 		return version;
 	}
+
 }

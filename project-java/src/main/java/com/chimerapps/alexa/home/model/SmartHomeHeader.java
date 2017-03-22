@@ -20,14 +20,16 @@ package com.chimerapps.alexa.home.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.UUID;
+
 /**
  * @author Nicola Verbeeck
- * Date 10/03/2017.
+ *         Date 10/03/2017.
  */
 public class SmartHomeHeader {
 
 	private final String messageId;
-	private String name;
+	private final String name;
 	private final String namespace;
 	private final String payloadVersion;
 
@@ -40,6 +42,10 @@ public class SmartHomeHeader {
 		this.name = name;
 		this.namespace = namespace;
 		this.payloadVersion = payloadVersion;
+	}
+
+	public SmartHomeHeader makeHeader(final String name) {
+		return new SmartHomeHeader(UUID.randomUUID().toString(), name, namespace, payloadVersion);
 	}
 
 	public String getMessageId() {
@@ -58,7 +64,4 @@ public class SmartHomeHeader {
 		return payloadVersion;
 	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
 }

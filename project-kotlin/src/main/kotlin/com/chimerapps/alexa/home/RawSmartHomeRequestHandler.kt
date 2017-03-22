@@ -84,7 +84,13 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
     private fun sendReply(output: OutputStream, reply: SmartHomeReply) {
         OutputStreamWriter(output, Charsets.UTF_8).use {
             reply.header.name = reply.payload.name
-            mapper.writeValue(it, reply)
+            if (logger.isDebugEnabled) {
+                val replyString = mapper.writeValueAsString(reply)
+                logger.debug("Writing reply: {}", replyString)
+                it.write(replyString)
+            } else {
+                mapper.writeValue(it, reply)
+            }
         }
     }
 

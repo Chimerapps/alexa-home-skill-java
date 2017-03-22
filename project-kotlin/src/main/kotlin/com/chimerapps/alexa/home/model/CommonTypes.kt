@@ -17,6 +17,8 @@
 
 package com.chimerapps.alexa.home.model
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 /**
  * @author Nicola Verbeeck
  * Date 10/03/2017.
@@ -30,11 +32,22 @@ data class DiscoveredAppliance(
         val applianceId: String,
         val friendlyDescription: String,
         val friendlyName: String,
+        @get:JsonProperty("isReachable")
         val isReachable: Boolean,
         val manufacturerName: String,
         val modelName: String,
-        val version: String)
+        val version: String) {
+    override fun hashCode(): Int {
+        return applianceId.hashCode()
+    }
 
+    override fun equals(other: Any?): Boolean {
+        if (other is DiscoveredAppliance) {
+            return applianceId == other.applianceId
+        }
+        return false
+    }
+}
 
 data class PreviousTemperature(val mode: StringValue,
                                val targetTemperature: Value)

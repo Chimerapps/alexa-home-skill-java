@@ -75,8 +75,6 @@ public abstract class RawSmartHomeRequestHandler implements RequestStreamHandler
 		try {
 			logger.debug("handleRequest");
 			final SmartHomeReply reply = doHandleRequest(input, context);
-			reply.getHeader().setName(reply.getPayload().getName());
-
 			logger.debug("Handled request: {}", reply);
 			sendReply(output, reply);
 		} catch (final SmartHomeError e) {
@@ -87,8 +85,13 @@ public abstract class RawSmartHomeRequestHandler implements RequestStreamHandler
 
 	private void sendReply(final OutputStream output, final SmartHomeReply reply) throws IOException {
 		try (final Writer writer = new OutputStreamWriter(output, "UTF-8")) {
-			reply.getHeader().setName(reply.getPayload().getName());
-			mapper.writeValue(writer, reply);
+			if (logger.isDebugEnabled()) {
+				final String replyString = mapper.writeValueAsString(reply);
+				logger.debug("Writing reply: {}", replyString);
+				writer.write(replyString);
+			} else {
+				mapper.writeValue(writer, reply);
+			}
 		}
 	}
 

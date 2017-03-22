@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * @author Nicola Verbeeck
- * Date 10/03/2017.
+ *         Date 10/03/2017.
  */
 public class Appliance {
 
@@ -44,5 +44,22 @@ public class Appliance {
 
 	public Map<String, String> getAdditionalApplianceDetails() {
 		return additionalApplianceDetails;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		final Appliance appliance = (Appliance) o;
+		return applianceId.equals(appliance.applianceId);
+	}
+
+	@Override
+	public int hashCode() {
+		return applianceId.hashCode();
 	}
 }

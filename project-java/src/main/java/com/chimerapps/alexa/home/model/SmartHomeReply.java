@@ -28,7 +28,7 @@ public class SmartHomeReply {
 
 	public SmartHomeReply(final SmartHomeHeader header,
 	                      final ResponsePayload payload) {
-		this.header = header;
+		this.header = header.makeHeader(payload.getName());
 		this.payload = payload;
 	}
 
