@@ -41,7 +41,7 @@ import java.util.UUID;
 
 /**
  * @author Nicola Verbeeck
- * Date 10/03/2017.
+ *         Date 10/03/2017.
  */
 public abstract class RawSmartHomeRequestHandler implements RequestStreamHandler {
 
@@ -54,8 +54,12 @@ public abstract class RawSmartHomeRequestHandler implements RequestStreamHandler
 	private static final Logger logger = LoggerFactory.getLogger(RawSmartHomeRequestHandler.class);
 	protected static final ObjectMapper mapper = new ObjectMapper();
 
-	static{
+	static {
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+	}
+
+	public RawSmartHomeRequestHandler() {
+		logger.info("Smart Home Request Handler being created");
 	}
 
 	protected abstract SmartHomeReply onDiscovery(final SmartHomeRequest request, final Context context) throws SmartHomeError;
@@ -69,6 +73,7 @@ public abstract class RawSmartHomeRequestHandler implements RequestStreamHandler
 	@Override
 	public void handleRequest(final InputStream input, final OutputStream output, final Context context) throws IOException {
 		try {
+			logger.debug("handleRequest");
 			final SmartHomeReply reply = doHandleRequest(input, context);
 			reply.getHeader().setName(reply.getPayload().getName());
 

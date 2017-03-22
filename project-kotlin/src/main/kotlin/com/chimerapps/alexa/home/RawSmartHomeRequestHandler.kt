@@ -53,6 +53,10 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
         private val SUPPORTED_VERSION = 2
     }
 
+    init {
+        logger.info("Smart Home Request Handler being created")
+    }
+
     @Throws(SmartHomeError::class)
     protected abstract fun onDiscovery(request: SmartHomeRequest, context: Context): SmartHomeReply
 
@@ -65,8 +69,9 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
     @Throws(SmartHomeError::class)
     protected abstract fun onSystem(request: SmartHomeRequest, context: Context): SmartHomeReply
 
-    final override fun handleRequest(input: InputStream, output: OutputStream, context: Context) {
+    override fun handleRequest(input: InputStream, output: OutputStream, context: Context) {
         try {
+            logger.debug("handleRequest")
             val reply = doHandleRequest(input, context)
             logger.debug("Handled request: {}", reply)
             sendReply(output, reply)
