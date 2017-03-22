@@ -17,6 +17,7 @@
 
 package com.chimerapps.alexa.home.model
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
 
 /**
@@ -30,36 +31,36 @@ data class SmartHomeHeader(val messageId: String, var name: String, val namespac
 //BASE
 open class BaseRequestPayload(val accessToken: String)
 
-open class ApplianceRequest(accessToken: String, val appliance: Appliance) : BaseRequestPayload(accessToken)
+open class ApplianceRequest(@JsonProperty("accessToken") accessToken: String, val appliance: Appliance) : BaseRequestPayload(accessToken)
 
 //DISCOVERY
-class DiscoverAppliancesRequest(accessToken: String) : BaseRequestPayload(accessToken)
+class DiscoverAppliancesRequest(@JsonProperty("accessToken") accessToken: String) : BaseRequestPayload(accessToken)
 
 //QUERY
-class GetLockStateRequest(accessToken: String) : BaseRequestPayload(accessToken)
+class GetLockStateRequest(@JsonProperty("accessToken") accessToken: String) : BaseRequestPayload(accessToken)
 
-class GetTemperatureReadingRequest(accessToken: String, appliance: Appliance) : ApplianceRequest(accessToken, appliance)
-class GetTargetTemperatureRequest(accessToken: String, appliance: Appliance) : ApplianceRequest(accessToken, appliance)
+class GetTemperatureReadingRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance) : ApplianceRequest(accessToken, appliance)
+class GetTargetTemperatureRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance) : ApplianceRequest(accessToken, appliance)
 
 //CONTROL - TEMPERATURE
-class SetTargetTemperatureRequest(accessToken: String, appliance: Appliance, val targetTemperature: Value) : ApplianceRequest(accessToken, appliance)
+class SetTargetTemperatureRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance, val targetTemperature: Value) : ApplianceRequest(accessToken, appliance)
 
-class IncrementTargetTemperatureRequest(accessToken: String, appliance: Appliance, val deltaTemperature: Value) : ApplianceRequest(accessToken, appliance)
-class DecrementTargetTemperatureRequest(accessToken: String, appliance: Appliance, val deltaTemperature: Value) : ApplianceRequest(accessToken, appliance)
+class IncrementTargetTemperatureRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance, val deltaTemperature: Value) : ApplianceRequest(accessToken, appliance)
+class DecrementTargetTemperatureRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance, val deltaTemperature: Value) : ApplianceRequest(accessToken, appliance)
 
 //CONTROL - LOCK
-class SetLockStateRequest(accessToken: String, appliance: Appliance, val lockState: String) : ApplianceRequest(accessToken, appliance)
+class SetLockStateRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance, val lockState: String) : ApplianceRequest(accessToken, appliance)
 
 //CONTROL - Percentage
-class DecrementPercentageRequest(accessToken: String, appliance: Appliance, val deltaPercentage: Value) : ApplianceRequest(accessToken, appliance)
+class DecrementPercentageRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance, val deltaPercentage: Value) : ApplianceRequest(accessToken, appliance)
 
-class IncrementPercentageRequest(accessToken: String, appliance: Appliance, val deltaPercentage: Value) : ApplianceRequest(accessToken, appliance)
-class SetPercentageRequest(accessToken: String, appliance: Appliance, val percentageState: Value) : ApplianceRequest(accessToken, appliance)
+class IncrementPercentageRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance, val deltaPercentage: Value) : ApplianceRequest(accessToken, appliance)
+class SetPercentageRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance, val percentageState: Value) : ApplianceRequest(accessToken, appliance)
 
 //CONTROL - Turn on/off
-class TurnOnRequest(accessToken: String, appliance: Appliance) : ApplianceRequest(accessToken, appliance)
+class TurnOnRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance) : ApplianceRequest(accessToken, appliance)
 
-class TurnOffRequest(accessToken: String, appliance: Appliance) : ApplianceRequest(accessToken, appliance)
+class TurnOffRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance) : ApplianceRequest(accessToken, appliance)
 
 //SYSTEM - Health
 data class HealthCheckRequest(val initiationTimestamp: String)
