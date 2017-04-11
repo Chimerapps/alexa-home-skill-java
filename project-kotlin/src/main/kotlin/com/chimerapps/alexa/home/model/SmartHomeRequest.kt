@@ -64,3 +64,10 @@ class TurnOffRequest(@JsonProperty("accessToken") accessToken: String, @JsonProp
 
 //SYSTEM - Health
 data class HealthCheckRequest(val initiationTimestamp: String)
+
+//CONTROL - COLOR
+class SetColorRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance, val color: Color)
+    : ApplianceRequest(accessToken, appliance)
+
+class SetColorTemperatureRequest(@JsonProperty("accessToken") accessToken: String, @JsonProperty("appliance") appliance: Appliance, val colorTemperature : IntValue)
+    : ApplianceRequest(accessToken, appliance)

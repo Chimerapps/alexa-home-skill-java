@@ -28,6 +28,7 @@ data class SmartHomeReply(val header: SmartHomeHeader, val payload: ResponsePayl
 
 open class ResponsePayload(@JsonIgnore val name: String)
 class EmptyPayload(name: String) : ResponsePayload(name)
+class CurrentModePayload(name: String, val currentDeviceMode: String) : ResponsePayload(name)
 
 //DISCOVERY
 data class DiscoverAppliancesResponse(val discoveredAppliances: Collection<DiscoveredAppliance>)
@@ -93,3 +94,21 @@ class TurnOffConfirmation
 data class HealthCheckResponse(@get:JsonProperty("isHealthy") val isHealthy: Boolean,
                                val description: String)
     : ResponsePayload("HealthCheckResponse")
+
+
+//CONTROL - Color
+data class AchievedColorState(val color: Color)
+
+data class AchievedTemperature(val colorTemperature: IntValue)
+
+data class SetColorConfirmationResponse(val achievedState: AchievedColorState)
+    : ResponsePayload("SetColorConfirmation")
+
+data class SetColorTemperatureConfirmationResponse(val achievedState: AchievedTemperature)
+    : ResponsePayload("SetColorTemperatureConfirmation")
+
+data class IncrementColorTemperatureConfirmation(val achievedState: AchievedTemperature)
+    : ResponsePayload("IncrementColorTemperatureConfirmation")
+
+data class DecrementColorTemperatureConfirmation(val achievedState: AchievedTemperature)
+    : ResponsePayload("DecrementColorTemperatureConfirmation")

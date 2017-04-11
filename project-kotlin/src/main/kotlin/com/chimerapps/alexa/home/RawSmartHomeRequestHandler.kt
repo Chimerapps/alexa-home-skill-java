@@ -128,7 +128,7 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
     }
 
     private fun makeError(e: SmartHomeError): SmartHomeReply {
-        return SmartHomeReply(e.header, EmptyPayload(e.errorName))
+        return SmartHomeReply(e.header, e.payload ?: EmptyPayload(e.errorName))
     }
 
 }

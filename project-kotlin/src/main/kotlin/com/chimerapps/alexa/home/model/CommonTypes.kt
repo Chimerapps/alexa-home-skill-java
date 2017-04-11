@@ -56,3 +56,11 @@ data class Appliance(val applianceId: String,
                      val additionalApplianceDetails: Map<String, String>)
 
 data class Value(val value: Double)
+
+data class IntValue(val value: Long)
+
+data class Color(val hue: Double, val saturation: Double, val brightness: Double)
+
+enum class DeviceMode {
+    AUTO, AWAY, COLOR, COOL, HEAT, OTHER
+}

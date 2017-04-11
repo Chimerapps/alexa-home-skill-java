@@ -74,6 +74,18 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
     protected open fun handleSetTemperature(header: SmartHomeHeader, request: SetTargetTemperatureRequest, context: Context): SetTargetTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
 
     @Throws(SmartHomeError::class)
+    protected open fun handleSetColor(header: SmartHomeHeader, request: SetColorRequest, context: Context): SetColorConfirmationResponse = throw UnsupportedOperationError(header, "Operation not supported")
+
+    @Throws(SmartHomeError::class)
+    protected open fun handleSetColorTemperature(header: SmartHomeHeader, request: SetColorTemperatureRequest, context: Context): SetColorTemperatureConfirmationResponse = throw UnsupportedOperationError(header, "Operation not supported")
+
+    @Throws(SmartHomeError::class)
+    protected open fun handleIncrementColorTemperature(header: SmartHomeHeader, request: ApplianceRequest, context: Context): IncrementColorTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+
+    @Throws(SmartHomeError::class)
+    protected open fun handleDecrementColorTemperature(header: SmartHomeHeader, request: ApplianceRequest, context: Context): DecrementColorTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
+
+    @Throws(SmartHomeError::class)
     override fun onDiscovery(request: SmartHomeRequest, context: Context): SmartHomeReply {
         val actualRequest = mapper.readValue<DiscoverAppliancesRequest>(request.payload)
         return SmartHomeReply(request.header.copy(messageId = UUID.randomUUID().toString()), handleDiscovery(request.header, actualRequest, context))
@@ -103,6 +115,10 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
                     ACTION_SET_PERCENTAGE -> handleSetPercentage(request.header, mapper.readValue<SetPercentageRequest>(request.payload), context)
                     ACTION_TURN_ON -> handleTurnOn(request.header, mapper.readValue<TurnOnRequest>(request.payload), context)
                     ACTION_TURN_OFF -> handleTurnOff(request.header, mapper.readValue<TurnOffRequest>(request.payload), context)
+                    ACTION_SET_COLOR -> handleSetColor(request.header, mapper.readValue<SetColorRequest>(request.payload),context)
+                    ACTION_SET_COLOR_TEMPERATURE -> handleSetColorTemperature(request.header, mapper.readValue<SetColorTemperatureRequest>(request.payload),context)
+                    ACTION_INC_COLOR_TEMPERATURE -> handleIncrementColorTemperature(request.header, mapper.readValue<ApplianceRequest>(request.payload),context)
+                    ACTION_DEC_COLOR_TEMPERATURE -> handleDecrementColorTemperature(request.header, mapper.readValue<ApplianceRequest>(request.payload),context)
                     else -> throw UnsupportedOperationError(request.header, "Unknown name: ${request.header.name}")
                 }
         )
@@ -136,5 +152,10 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
 
         val ACTION_TURN_ON = "TurnOnRequest"
         val ACTION_TURN_OFF = "TurnOffRequest"
+
+        val ACTION_SET_COLOR = "SetColorRequest"
+        val ACTION_SET_COLOR_TEMPERATURE = "SetColorTemperatureRequest"
+        val ACTION_INC_COLOR_TEMPERATURE = "IncrementColorTemperatureRequest"
+        val ACTION_DEC_COLOR_TEMPERATURE = "DecrementColorTemperatureRequest"
     }
 }
