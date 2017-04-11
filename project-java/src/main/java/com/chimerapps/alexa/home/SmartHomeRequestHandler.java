@@ -26,6 +26,12 @@ import com.chimerapps.alexa.home.model.ResponsePayload;
 import com.chimerapps.alexa.home.model.SmartHomeHeader;
 import com.chimerapps.alexa.home.model.SmartHomeReply;
 import com.chimerapps.alexa.home.model.SmartHomeRequest;
+import com.chimerapps.alexa.home.model.color.DecrementColorTemperatureConfirmationResponse;
+import com.chimerapps.alexa.home.model.color.IncrementColorTemperatureConfirmationResponse;
+import com.chimerapps.alexa.home.model.color.SetColorConfirmationResponse;
+import com.chimerapps.alexa.home.model.color.SetColorRequest;
+import com.chimerapps.alexa.home.model.color.SetColorTemperatureConfirmationResponse;
+import com.chimerapps.alexa.home.model.color.SetColorTemperatureRequest;
 import com.chimerapps.alexa.home.model.discovery.DiscoverAppliancesRequest;
 import com.chimerapps.alexa.home.model.discovery.DiscoverAppliancesResponse;
 import com.chimerapps.alexa.home.model.healthcheck.HealthCheckRequest;
@@ -76,6 +82,11 @@ public class SmartHomeRequestHandler extends RawSmartHomeRequestHandler {
 
 	public static final String ACTION_TURN_ON = "TurnOnRequest";
 	public static final String ACTION_TURN_OFF = "TurnOffRequest";
+
+	public static final String ACTION_SET_COLOR = "SetColorRequest";
+	public static final String ACTION_SET_COLOR_TEMPERATURE = "SetColorTemperatureRequest";
+	public static final String ACTION_INC_COLOR_TEMPERATURE = "IncrementColorTemperatureRequest";
+	public static final String ACTION_DEC_COLOR_TEMPERATURE = "DecrementColorTemperatureRequest";
 
 
 	protected DiscoverAppliancesResponse handleDiscovery(final SmartHomeHeader header, final DiscoverAppliancesRequest request, final Context context) throws SmartHomeError {
@@ -134,6 +145,21 @@ public class SmartHomeRequestHandler extends RawSmartHomeRequestHandler {
 		throw new UnsupportedOperationError(header, "Operation not supported");
 	}
 
+	protected SetColorConfirmationResponse handleSetColor(final SmartHomeHeader header, final SetColorRequest request, final Context context) throws SmartHomeError {
+		throw new UnsupportedOperationError(header, "Operation not supported");
+	}
+
+	protected SetColorTemperatureConfirmationResponse handleSetColorTemperature(final SmartHomeHeader header, final SetColorTemperatureRequest request, final Context context) throws SmartHomeError {
+		throw new UnsupportedOperationError(header, "Operation not supported");
+	}
+
+	protected IncrementColorTemperatureConfirmationResponse handleIncrementColorTemperature(final SmartHomeHeader header, final ApplianceRequest request, final Context context) throws SmartHomeError {
+		throw new UnsupportedOperationError(header, "Operation not supported");
+	}
+
+	protected DecrementColorTemperatureConfirmationResponse handleDecrementColorTemperature(final SmartHomeHeader header, final ApplianceRequest request, final Context context) throws SmartHomeError {
+		throw new UnsupportedOperationError(header, "Operation not supported");
+	}
 
 	@Override
 	protected SmartHomeReply onDiscovery(final SmartHomeRequest request, final Context context) throws SmartHomeError {
@@ -199,6 +225,18 @@ public class SmartHomeRequestHandler extends RawSmartHomeRequestHandler {
 					break;
 				case ACTION_TURN_OFF:
 					payload = handleTurnOff(request.getHeader(), mapper.treeToValue(request.getPayload(), ApplianceRequest.class), context);
+					break;
+				case ACTION_SET_COLOR:
+					payload = handleSetColor(request.getHeader(), mapper.treeToValue(request.getPayload(), SetColorRequest.class), context);
+					break;
+				case ACTION_SET_COLOR_TEMPERATURE:
+					payload = handleSetColorTemperature(request.getHeader(), mapper.treeToValue(request.getPayload(), SetColorTemperatureRequest.class), context);
+					break;
+				case ACTION_INC_COLOR_TEMPERATURE:
+					payload = handleIncrementColorTemperature(request.getHeader(), mapper.treeToValue(request.getPayload(), ApplianceRequest.class), context);
+					break;
+				case ACTION_DEC_COLOR_TEMPERATURE:
+					payload = handleDecrementColorTemperature(request.getHeader(), mapper.treeToValue(request.getPayload(), ApplianceRequest.class), context);
 					break;
 				default:
 					throw new UnsupportedOperationError(request.getHeader(), "Unknown name: " + request.getHeader().getName());

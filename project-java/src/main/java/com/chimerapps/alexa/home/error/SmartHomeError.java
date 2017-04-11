@@ -17,24 +17,35 @@
 
 package com.chimerapps.alexa.home.error;
 
+import com.chimerapps.alexa.home.model.ResponsePayload;
 import com.chimerapps.alexa.home.model.SmartHomeHeader;
 
 /**
  * @author Nicola Verbeeck
- * Date 09/03/2017.
+ *         Date 09/03/2017.
  */
 public class SmartHomeError extends Exception {
 
 	private final SmartHomeHeader header;
 	private final String errorName;
+	private final ResponsePayload payload;
 
 	public SmartHomeError(final SmartHomeHeader header,
 	                      final String errorName,
 	                      final String message,
 	                      final Throwable cause) {
+		this(header, errorName, message, cause, null);
+	}
+
+	public SmartHomeError(final SmartHomeHeader header,
+	                      final String errorName,
+	                      final String message,
+	                      final Throwable cause,
+	                      final ResponsePayload payload) {
 		super(message, cause);
 		this.header = header;
 		this.errorName = errorName;
+		this.payload = payload;
 	}
 
 	public SmartHomeHeader getHeader() {
@@ -43,6 +54,10 @@ public class SmartHomeError extends Exception {
 
 	public String getErrorName() {
 		return errorName;
+	}
+
+	public ResponsePayload getPayload() {
+		return payload;
 	}
 }
 

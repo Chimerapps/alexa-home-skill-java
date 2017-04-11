@@ -144,6 +144,6 @@ public abstract class RawSmartHomeRequestHandler implements RequestStreamHandler
 	}
 
 	private static SmartHomeReply makeError(final SmartHomeError e) {
-		return new SmartHomeReply(e.getHeader(), new EmptyPayload(e.getErrorName()));
+		return new SmartHomeReply(e.getHeader(), e.getPayload() != null ? e.getPayload() : new EmptyPayload(e.getErrorName()));
 	}
 }
