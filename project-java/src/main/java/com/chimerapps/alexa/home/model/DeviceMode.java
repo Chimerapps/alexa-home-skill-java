@@ -19,7 +19,7 @@ package com.chimerapps.alexa.home.model;
 
 /**
  * @author Nicola Verbeeck
- * @date 11/04/2017.
+ * Date 11/04/2017.
  */
 public enum DeviceMode {
 	AUTO, AWAY, COLOR, COOL, HEAT, OTHER

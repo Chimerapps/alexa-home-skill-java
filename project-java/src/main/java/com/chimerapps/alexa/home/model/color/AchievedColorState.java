@@ -21,7 +21,7 @@ import com.chimerapps.alexa.home.model.Color;
 
 /**
  * @author Nicola Verbeeck
- * @date 11/04/2017.
+ * Date 11/04/2017.
  */
 public class AchievedColorState {
 

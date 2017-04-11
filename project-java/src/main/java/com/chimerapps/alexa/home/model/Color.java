@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Nicola Verbeeck
- * @date 11/04/2017.
+ * Date 11/04/2017.
  */
 public class Color {
 

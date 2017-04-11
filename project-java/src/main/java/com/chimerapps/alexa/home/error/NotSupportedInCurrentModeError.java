@@ -23,7 +23,7 @@ import com.chimerapps.alexa.home.model.SmartHomeHeader;
 
 /**
  * @author Nicola Verbeeck
- * @date 11/04/2017.
+ * Date 11/04/2017.
  */
 public class NotSupportedInCurrentModeError extends SmartHomeError {
 
