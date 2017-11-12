@@ -146,3 +146,6 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 # End of https://www.gitignore.io/api/java,gradle,osx,git,windows,intellij+iml
+project-java/build
+project-kotlin/build
+project-kotlin/out

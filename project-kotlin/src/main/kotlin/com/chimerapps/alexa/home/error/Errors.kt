@@ -17,26 +17,44 @@
 
 package com.chimerapps.alexa.home.error
 
-import com.chimerapps.alexa.home.model.CurrentModePayload
-import com.chimerapps.alexa.home.model.DeviceMode
-import com.chimerapps.alexa.home.model.ResponsePayload
-import com.chimerapps.alexa.home.model.SmartHomeHeader
+import com.chimerapps.alexa.home.model.Directive
 
 /**
  * @author Nicola Verbeeck
  * Date 09/03/2017.
  */
-open class SmartHomeError(val header: SmartHomeHeader, val errorName: String, message: String?, cause: Throwable?, val payload: ResponsePayload? = null) : Exception(message, cause)
+data class ErrorPayload(val type: String, val message: String)
 
-class DriverInternalError(header: SmartHomeHeader, message: String?, cause: Throwable? = null) : SmartHomeError(header, "DriverInternalError", message, cause)
+open class SmartHomeError(val directive: Directive,
+                          message: String?,
+                          cause: Throwable?,
+                          val payload: ErrorPayload) : Exception(message, cause) {
+    override fun toString(): String {
+        return "SmartHomeError(directive=$directive, payload=$payload). $message $cause"
+    }
+}
 
-class ExpiredAccessTokenError(header: SmartHomeHeader, message: String, cause: Throwable? = null) : SmartHomeError(header, "ExpiredAccessTokenError", message, cause)
+class DriverInternalError(directive: Directive,
+                          message: String,
+                          cause: Throwable? = null)
+    : SmartHomeError(directive, message, cause, ErrorPayload("INTERNAL_ERROR", message))
 
-class InvalidAccessTokenError(header: SmartHomeHeader, message: String, cause: Throwable? = null) : SmartHomeError(header, "InvalidAccessTokenError", message, cause)
 
-class UnsupportedTargetError(header: SmartHomeHeader, message: String, cause: Throwable? = null) : SmartHomeError(header, "UnsupportedTargetError", message, cause)
+class ExpiredAccessTokenError(directive: Directive,
+                              message: String,
+                              cause: Throwable? = null)
+    : SmartHomeError(directive, message, cause, ErrorPayload("EXPIRED_AUTHORIZATION_CREDENTIAL", message))
 
-class UnsupportedOperationError(header: SmartHomeHeader, message: String, cause: Throwable? = null) : SmartHomeError(header, "UnsupportedOperationError", message, cause)
+class InvalidAccessTokenError(directive: Directive,
+                              message: String,
+                              cause: Throwable? = null)
+    : SmartHomeError(directive, message, cause, ErrorPayload("INVALID_AUTHORIZATION_CREDENTIAL", message))
 
-class NotSupportedInCurrentModeError(header: SmartHomeHeader, message: String, mode: DeviceMode, cause: Throwable? = null)
-    : SmartHomeError(header, "NotSupportedInCurrentModeError", message, cause, CurrentModePayload("NotSupportedInCurrentModeError", mode.name))
+
+class UnsupportedOperationError(directive: Directive,
+                                message: String,
+                                cause: Throwable? = null)
+    : SmartHomeError(directive, message, cause, ErrorPayload("NO_SUCH_ENDPOINT", message))
+//
+//class NotSupportedInCurrentModeError(directive: Directive, message: String, mode: DeviceMode, cause: Throwable? = null)
+//    : SmartHomeError(directive, "NotSupportedInCurrentModeError", message, cause, CurrentModePayload("NotSupportedInCurrentModeError", mode.name))

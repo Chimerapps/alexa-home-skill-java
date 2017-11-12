@@ -21,9 +21,10 @@ import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler
 import com.chimerapps.alexa.home.error.DriverInternalError
 import com.chimerapps.alexa.home.error.SmartHomeError
-import com.chimerapps.alexa.home.model.EmptyPayload
-import com.chimerapps.alexa.home.model.SmartHomeReply
-import com.chimerapps.alexa.home.model.SmartHomeRequest
+import com.chimerapps.alexa.home.model.Controller
+import com.chimerapps.alexa.home.model.Directive
+import com.chimerapps.alexa.home.model.Event
+import com.chimerapps.alexa.home.model.controllers
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -46,11 +47,8 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
         }
         private val logger = LoggerFactory.getLogger(RawSmartHomeRequestHandler::class.java)
 
-        private val NAMESPACE_DISCOVERY = "Alexa.ConnectedHome.Discovery"
-        private val NAMESPACE_CONTROL = "Alexa.ConnectedHome.Control"
-        private val NAMESPACE_QUERY = "Alexa.ConnectedHome.Query"
-        private val NAMESPACE_SYSTEM = "Alexa.ConnectedHome.System"
-        private val SUPPORTED_VERSION = 2
+        private const val NAMESPACE_DISCOVERY = "Alexa.Discovery"
+        private const val SUPPORTED_VERSION = 3
     }
 
     init {
@@ -58,16 +56,10 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
     }
 
     @Throws(SmartHomeError::class)
-    protected abstract fun onDiscovery(request: SmartHomeRequest, context: Context): SmartHomeReply
+    protected abstract fun onDiscovery(request: Directive, context: Context): Event
 
     @Throws(SmartHomeError::class)
-    protected abstract fun onQuery(request: SmartHomeRequest, context: Context): SmartHomeReply
-
-    @Throws(SmartHomeError::class)
-    protected abstract fun onControl(request: SmartHomeRequest, context: Context): SmartHomeReply
-
-    @Throws(SmartHomeError::class)
-    protected abstract fun onSystem(request: SmartHomeRequest, context: Context): SmartHomeReply
+    protected abstract fun onControl(controller: Controller, request: Directive, context: Context): Event
 
     override fun handleRequest(input: InputStream, output: OutputStream, context: Context) {
         try {
@@ -76,14 +68,13 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
             logger.debug("Handled request: {}", reply)
             sendReply(output.buffered(), reply)
         } catch (e: SmartHomeError) {
-            logger.warn("Error while executing request: {}", e, e.errorName)
+            logger.warn("Error while executing request: {}", e)
             sendReply(output.buffered(), makeError(e))
         }
     }
 
-    private fun sendReply(output: OutputStream, reply: SmartHomeReply) {
+    private fun sendReply(output: OutputStream, reply: Event) {
         OutputStreamWriter(output, Charsets.UTF_8).use {
-            reply.header.name = reply.payload.name
             if (logger.isDebugEnabled) {
                 val replyString = mapper.writeValueAsString(reply)
                 logger.debug("Writing reply: {}", replyString)
@@ -94,41 +85,46 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
         }
     }
 
-    private fun doHandleRequest(input: InputStream, context: Context): SmartHomeReply {
+    private fun doHandleRequest(input: InputStream, context: Context): Event {
         val request = InputStreamReader(input, Charsets.UTF_8).use {
-            mapper.readValue<SmartHomeRequest>(it)
+            mapper.readValue<Directive>(it)
         }
         logger.debug("Lambda Request: {}", request)
         checkVersion(request)
 
         try {
-            return when (request.header.namespace) {
-                NAMESPACE_DISCOVERY -> onDiscovery(request, context)
-                NAMESPACE_CONTROL -> onControl(request, context)
-                NAMESPACE_QUERY -> onQuery(request, context)
-                NAMESPACE_SYSTEM -> onSystem(request, context)
-                else -> throw DriverInternalError(request.header, "Unknown namespace: ${request.header.namespace}")
+            val namespace = request.header.namespace
+            if (namespace == NAMESPACE_DISCOVERY) {
+                return onDiscovery(request, context)
             }
-        } catch(e: SmartHomeError) {
+            val controller = controllers.find { it.namespace == namespace }
+            if (controller != null)
+                return onControl(controller, request, context)
+
+            throw DriverInternalError(request, "Unknown namespace: $namespace")
+        } catch (e: SmartHomeError) {
             throw e
-        } catch(e: Throwable) {
-            throw DriverInternalError(request.header, "Internal error!", e)
+        } catch (e: Throwable) {
+            throw DriverInternalError(request, "Internal error!", e)
         }
     }
 
-    private fun checkVersion(request: SmartHomeRequest) {
+    private fun checkVersion(request: Directive) {
         try {
             val version = request.header.payloadVersion.toInt()
             if (version > SUPPORTED_VERSION) {
-                throw DriverInternalError(request.header, "Unsupported version, reported: $version")
+                throw DriverInternalError(request, "Unsupported version, reported: $version")
             }
         } catch (e: NumberFormatException) {
-            throw DriverInternalError(request.header, "Invalid version, reported: ${request.header.payloadVersion}")
+            throw DriverInternalError(request, "Invalid version, reported: ${request.header.payloadVersion}")
         }
     }
 
-    private fun makeError(e: SmartHomeError): SmartHomeReply {
-        return SmartHomeReply(e.header, e.payload ?: EmptyPayload(e.errorName))
+    private fun makeError(e: SmartHomeError): Event {
+        return Event(header = e.directive.header.toResponseWithName(name = "ErrorResponse"),
+                endpoint = e.directive.endpoint,
+                payload = e.payload,
+                context = null)
     }
 
 }

@@ -21,8 +21,8 @@ import com.amazonaws.services.lambda.runtime.Context
 import com.chimerapps.alexa.home.error.SmartHomeError
 import com.chimerapps.alexa.home.error.UnsupportedOperationError
 import com.chimerapps.alexa.home.model.*
+import com.chimerapps.alexa.home.model.discovery.DiscoveryResultPayload
 import com.chimerapps.alexa.home.utils.readValue
-import java.util.*
 
 /**
  * @author Nicola Verbeeck
@@ -31,131 +31,57 @@ import java.util.*
 @Suppress("unused", "UNUSED_PARAMETER")
 abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
 
-    @Throws(SmartHomeError::class)
-    protected open fun handleDiscovery(header: SmartHomeHeader, request: DiscoverAppliancesRequest, context: Context): DiscoverAppliancesResponse = throw UnsupportedOperationError(header, "Operation not supported")
+    private val actionHandlers: MutableList<Pair<String, ActionHandler<*>>> = mutableListOf()
 
-    @Throws(SmartHomeError::class)
-    protected open fun handleGetLockState(header: SmartHomeHeader, request: GetLockStateRequest, context: Context): GetLockStateResponse = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleGetTargetTemperature(header: SmartHomeHeader, request: GetTargetTemperatureRequest, context: Context): GetTargetTemperatureResponse = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleGetTemperatureReading(header: SmartHomeHeader, request: GetTemperatureReadingRequest, context: Context): GetTemperatureReadingResponse = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleHealthCheck(header: SmartHomeHeader, request: HealthCheckRequest, context: Context): HealthCheckResponse = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleSetLockState(header: SmartHomeHeader, request: SetLockStateRequest, context: Context): SetLockStateConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleIncrementTemperature(header: SmartHomeHeader, request: IncrementTargetTemperatureRequest, context: Context): IncrementTargetTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleDecrementTemperature(header: SmartHomeHeader, request: DecrementTargetTemperatureRequest, context: Context): DecrementTargetTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleDecrementPercentage(header: SmartHomeHeader, request: DecrementPercentageRequest, context: Context): DecrementPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleIncrementPercentage(header: SmartHomeHeader, request: IncrementPercentageRequest, context: Context): IncrementPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleSetPercentage(header: SmartHomeHeader, request: SetPercentageRequest, context: Context): SetPercentageConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleTurnOn(header: SmartHomeHeader, request: TurnOnRequest, context: Context): TurnOnConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleTurnOff(header: SmartHomeHeader, request: TurnOffRequest, context: Context): TurnOffConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleSetTemperature(header: SmartHomeHeader, request: SetTargetTemperatureRequest, context: Context): SetTargetTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleSetColor(header: SmartHomeHeader, request: SetColorRequest, context: Context): SetColorConfirmationResponse = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleSetColorTemperature(header: SmartHomeHeader, request: SetColorTemperatureRequest, context: Context): SetColorTemperatureConfirmationResponse = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleIncrementColorTemperature(header: SmartHomeHeader, request: ApplianceRequest, context: Context): IncrementColorTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    protected open fun handleDecrementColorTemperature(header: SmartHomeHeader, request: ApplianceRequest, context: Context): DecrementColorTemperatureConfirmation = throw UnsupportedOperationError(header, "Operation not supported")
-
-    @Throws(SmartHomeError::class)
-    override fun onDiscovery(request: SmartHomeRequest, context: Context): SmartHomeReply {
-        val actualRequest = mapper.readValue<DiscoverAppliancesRequest>(request.payload)
-        return SmartHomeReply(request.header.copy(messageId = UUID.randomUUID().toString()), handleDiscovery(request.header, actualRequest, context))
+    fun registerActionHandler(controller: Controller, action: String, actionHandler: ActionHandler<*>) {
+        actionHandlers.add(Pair(key(controller, action), actionHandler))
     }
 
     @Throws(SmartHomeError::class)
-    override fun onQuery(request: SmartHomeRequest, context: Context): SmartHomeReply {
-        return SmartHomeReply(request.header.copy(messageId = UUID.randomUUID().toString()),
-                when (request.header.name) {
-                    ACTION_GET_LOCK_STATE -> handleGetLockState(request.header, mapper.readValue<GetLockStateRequest>(request.payload), context)
-                    ACTION_GET_TARGET_TEMPERATURE -> handleGetTargetTemperature(request.header, mapper.readValue<GetTargetTemperatureRequest>(request.payload), context)
-                    ACTION_GET_TEMPERATURE_READING -> handleGetTemperatureReading(request.header, mapper.readValue<GetTemperatureReadingRequest>(request.payload), context)
-                    else -> throw UnsupportedOperationError(request.header, "Unknown name: ${request.header.name}")
-                })
-    }
+    protected open fun handleDiscovery(directive: Directive,
+                                       accessToken: String,
+                                       context: Context)
+            : DiscoveryResultPayload = throw UnsupportedOperationError(directive, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    override fun onControl(request: SmartHomeRequest, context: Context): SmartHomeReply {
-        return SmartHomeReply(request.header.copy(messageId = UUID.randomUUID().toString()),
-                when (request.header.name) {
-                    ACTION_SET_LOCK_STATE -> handleSetLockState(request.header, mapper.readValue<SetLockStateRequest>(request.payload), context)
-                    ACTION_SET_TARGET_TEMPERATURE -> handleSetTemperature(request.header, mapper.readValue<SetTargetTemperatureRequest>(request.payload), context)
-                    ACTION_INC_TEMPERATURE -> handleIncrementTemperature(request.header, mapper.readValue<IncrementTargetTemperatureRequest>(request.payload), context)
-                    ACTION_DEC_TEMPERATURE -> handleDecrementTemperature(request.header, mapper.readValue<DecrementTargetTemperatureRequest>(request.payload), context)
-                    ACTION_DEC_PERCENTAGE -> handleDecrementPercentage(request.header, mapper.readValue<DecrementPercentageRequest>(request.payload), context)
-                    ACTION_INC_PERCENTAGE -> handleIncrementPercentage(request.header, mapper.readValue<IncrementPercentageRequest>(request.payload), context)
-                    ACTION_SET_PERCENTAGE -> handleSetPercentage(request.header, mapper.readValue<SetPercentageRequest>(request.payload), context)
-                    ACTION_TURN_ON -> handleTurnOn(request.header, mapper.readValue<TurnOnRequest>(request.payload), context)
-                    ACTION_TURN_OFF -> handleTurnOff(request.header, mapper.readValue<TurnOffRequest>(request.payload), context)
-                    ACTION_SET_COLOR -> handleSetColor(request.header, mapper.readValue<SetColorRequest>(request.payload),context)
-                    ACTION_SET_COLOR_TEMPERATURE -> handleSetColorTemperature(request.header, mapper.readValue<SetColorTemperatureRequest>(request.payload),context)
-                    ACTION_INC_COLOR_TEMPERATURE -> handleIncrementColorTemperature(request.header, mapper.readValue<ApplianceRequest>(request.payload),context)
-                    ACTION_DEC_COLOR_TEMPERATURE -> handleDecrementColorTemperature(request.header, mapper.readValue<ApplianceRequest>(request.payload),context)
-                    else -> throw UnsupportedOperationError(request.header, "Unknown name: ${request.header.name}")
-                }
+    override fun onDiscovery(request: Directive, context: Context): Event {
+        val actualRequest = mapper.readValue<DiscoveryPayload>(request.payload)
+        return Event(header = request.header.toResponseWithNewId(),
+                payload = handleDiscovery(request,
+                        actualRequest.scope.asType<Scopes.BearerScope>(Scope.ScopeType.BEARER).token, context),
+                endpoint = null,
+                context = null
         )
     }
 
-    @Throws(SmartHomeError::class)
-    override fun onSystem(request: SmartHomeRequest, context: Context): SmartHomeReply {
-        return SmartHomeReply(request.header.copy(messageId = UUID.randomUUID().toString()),
-                when (request.header.name) {
-                    ACTION_HEALTH_CHECK -> handleHealthCheck(request.header, mapper.readValue<HealthCheckRequest>(request.payload), context)
-                    else -> throw UnsupportedOperationError(request.header, "Unknown name: ${request.header.name}")
-                })
+    override fun onControl(controller: Controller, request: Directive, context: Context): Event {
+        val name = request.header.name
+        val action = controller.actions.find { it.name == name }
+                ?: throw UnsupportedOperationError(request, "$name not supported")
+
+        val actionHandler = getActionHandler(controller, action)
+                ?: throw UnsupportedOperationError(request, "$name not supported")
+
+        @Suppress("UNCHECKED_CAST")
+        val mapped = mapper.treeToValue<Any>(request.payload, action.inputType as Class<Any>)
+        return actionHandler.handleAction(request, controller, name, mapped)
+    }
+
+    protected fun getActionHandler(controller: Controller, action: ControllerAction): ActionHandler<Any>? {
+        val key = key(controller, action.name)
+        @Suppress("UNCHECKED_CAST")
+        return actionHandlers.find { it.first == key }?.second as ActionHandler<Any>?
     }
 
     companion object {
-        val ACTION_GET_LOCK_STATE = "GetLockStateRequest"
-        val ACTION_SET_LOCK_STATE = "SetLockStateRequest"
-
-        val ACTION_GET_TARGET_TEMPERATURE = "GetTargetTemperatureRequest"
-        val ACTION_SET_TARGET_TEMPERATURE = "SetTargetTemperatureRequest"
-        val ACTION_INC_TEMPERATURE = "IncrementTargetTemperatureRequest"
-        val ACTION_DEC_TEMPERATURE = "DecrementTargetTemperatureRequest"
-
-        val ACTION_GET_TEMPERATURE_READING = "GetTemperatureReadingRequest"
-
-        val ACTION_HEALTH_CHECK = "HealthCheckRequest"
-
-        val ACTION_DEC_PERCENTAGE = "DecrementPercentageRequest"
-        val ACTION_INC_PERCENTAGE = "IncrementPercentageRequest"
-        val ACTION_SET_PERCENTAGE = "SetPercentageRequest"
-
-        val ACTION_TURN_ON = "TurnOnRequest"
-        val ACTION_TURN_OFF = "TurnOffRequest"
-
-        val ACTION_SET_COLOR = "SetColorRequest"
-        val ACTION_SET_COLOR_TEMPERATURE = "SetColorTemperatureRequest"
-        val ACTION_INC_COLOR_TEMPERATURE = "IncrementColorTemperatureRequest"
-        val ACTION_DEC_COLOR_TEMPERATURE = "DecrementColorTemperatureRequest"
+        private fun key(controller: Controller, action: String): String {
+            return controller.namespace + "__+__" + action
+        }
     }
+}
+
+interface ActionHandler<T> {
+
+    fun handleAction(directive: Directive, controller: Controller, action: String, payload: T): Event
+
 }
