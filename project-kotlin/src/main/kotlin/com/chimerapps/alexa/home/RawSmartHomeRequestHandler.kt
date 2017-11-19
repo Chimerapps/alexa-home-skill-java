@@ -44,11 +44,15 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
                 .registerTypeAdapter(Scope::class.java, ScopeAdapter)
                 .registerTypeAdapter(Context::class.java, ContextAdapter)
                 .registerTypeAdapter(PropertyAdapter::class.java, PropertyAdapter)
+                .registerTypeAdapter(EventWithContext::class.java, EventWithContextAdapter)
+                .registerTypeAdapter(Event::class.java, EventAdapter)
                 .create()
 
         private val logger = LoggerFactory.getLogger(RawSmartHomeRequestHandler::class.java)
 
         private const val NAMESPACE_DISCOVERY = "Alexa.Discovery"
+        private const val NAMESPACE_ALEXA = "Alexa"
+        private const val NAME_REPORT_STATE = "ReportState"
         private const val SUPPORTED_VERSION = 3
     }
 
@@ -61,6 +65,9 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
 
     @Throws(SmartHomeError::class)
     protected abstract fun onControl(controller: Controller, request: Directive, context: Context): EventWithContext
+
+    @Throws(SmartHomeError::class)
+    protected abstract fun onReportState(request: Directive, context: Context): EventWithContext
 
     override fun handleRequest(input: InputStream, output: OutputStream, context: Context) {
         try {
@@ -101,12 +108,12 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
 
         try {
             val namespace = request.header.namespace
-            if (namespace == NAMESPACE_DISCOVERY) {
+            if (namespace == NAMESPACE_DISCOVERY)
                 return onDiscovery(request, context)
-            }
-            val controller = controllers.find { it.namespace == namespace }
-            if (controller != null)
-                return onControl(controller, request, context)
+            else if (namespace == NAMESPACE_ALEXA && request.header.name == NAME_REPORT_STATE)
+                return onReportState(request, context)
+
+            controllers.find { it.namespace == namespace }?.let { return onControl(it, request, context) }
 
             throw DriverInternalError(request, "Unknown namespace: $namespace")
         } catch (e: SmartHomeError) {

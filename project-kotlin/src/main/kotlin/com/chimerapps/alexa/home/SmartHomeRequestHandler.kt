@@ -18,6 +18,7 @@
 package com.chimerapps.alexa.home
 
 import com.amazonaws.services.lambda.runtime.Context
+import com.chimerapps.alexa.home.error.DriverInternalError
 import com.chimerapps.alexa.home.error.SmartHomeError
 import com.chimerapps.alexa.home.error.UnsupportedOperationError
 import com.chimerapps.alexa.home.model.*
@@ -42,9 +43,15 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
                                        context: Context)
             : DiscoveryResultPayload = throw UnsupportedOperationError(directive, "Operation not supported")
 
+    protected open fun handleReportState(directive: Directive,
+                                         accessToken: String,
+                                         deviceId: String,
+                                         context: Context)
+            : List<Property> = throw UnsupportedOperationError(directive, "Operation not supported")
+
     @Throws(SmartHomeError::class)
     override fun onDiscovery(request: Directive, context: Context): EventWithContext {
-        val actualRequest = DiscoveryPayload.fromPayload(request.payload!!)
+        val actualRequest = DiscoveryPayload.fromPayload(request.payload)
         return EventWithContext(
                 event = Event(header = request.header.toResponseWithNewId("Discover.Response"),
                         payload = handleDiscovery(request,
@@ -54,6 +61,7 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
         )
     }
 
+    @Throws(SmartHomeError::class)
     override fun onControl(controller: Controller, request: Directive, context: Context): EventWithContext {
         val name = request.header.name
         val action = controller.actions.find { it.name == name }
@@ -65,6 +73,24 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
         @Suppress("UNCHECKED_CAST")
         val mapped = gson.fromJson<Any>(request.payload, action.inputType as Class<Any>)
         return actionHandler.handleAction(request, controller, name, mapped)
+    }
+
+    @Throws(SmartHomeError::class)
+    override fun onReportState(request: Directive, context: Context): EventWithContext {
+        val endpointId = request.endpoint?.endpointId ?: throw DriverInternalError(request, "No endpoint provided for report state")
+        val token = request.endpoint.scope.asType<Scopes.BearerScope>(Scope.ScopeType.BEARER).token
+
+        val properties = handleReportState(directive = request,
+                accessToken = token,
+                deviceId = endpointId,
+                context = context)
+
+        return EventWithContext(
+                event = Event(header = request.header.toResponseWithNewId("StateReport"),
+                        payload = request.payload,
+                        endpoint = request.endpoint),
+                context = Context(properties)
+        )
     }
 
     protected fun getActionHandler(controller: Controller, action: ControllerAction): ActionHandler<Any>? {

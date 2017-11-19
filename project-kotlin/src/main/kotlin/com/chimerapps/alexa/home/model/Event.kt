@@ -17,6 +17,11 @@
 
 package com.chimerapps.alexa.home.model
 
+import com.google.gson.Gson
+import com.google.gson.TypeAdapter
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
+
 /**
  * @author Nicola Verbeeck
  * @date 08/11/2017.
@@ -24,3 +29,51 @@ package com.chimerapps.alexa.home.model
 data class Event(val header: Header, val payload: Any, val endpoint: Endpoint?)
 
 data class EventWithContext(val event: Event, val context: Context?)
+
+object EventAdapter : TypeAdapter<Event>() {
+    override fun read(`in`: JsonReader?): Event {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun write(out: JsonWriter, value: Event) {
+        out.beginObject()
+
+        out.name("header")
+        HeaderAdapter.write(out, value.header)
+
+        out.name("endpoint")
+        EndpointAdapter.write(out, value.endpoint)
+
+        out.name("payload")
+        val gson = Gson()
+        gson.toJson(gson.toJsonTree(value.payload), out)
+
+        out.endObject()
+    }
+
+}
+
+object EventWithContextAdapter : TypeAdapter<EventWithContext>() {
+
+    override fun read(`in`: JsonReader?): EventWithContext {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun write(out: JsonWriter, value: EventWithContext?) {
+        if (value == null) {
+            out.nullValue()
+            return
+        }
+
+        out.beginObject()
+
+        out.name("context")
+        ContextAdapter.write(out, value.context)
+
+        out.name("event")
+        EventAdapter.write(out, value.event)
+
+        out.endObject()
+    }
+
+}

@@ -47,8 +47,8 @@ object PropertyAdapter : TypeAdapter<Property>() {
 
     override fun write(out: JsonWriter, value: Property) {
         out.beginObject()
-        out.name("namespace").value(value.namespace)
         out.name("name").value(value.name)
+        out.name("namespace").value(value.namespace)
         out.name("timeOfSample").value(dateFormat.format(value.timeOfSample))
         out.name("uncertaintyInMilliseconds").value(value.uncertaintyInMilliseconds)
 
@@ -78,9 +78,11 @@ object ContextAdapter : TypeAdapter<Context>() {
         out.beginObject()
 
         out.name("properties")
+        out.beginArray()
         value.properties.forEach {
             PropertyAdapter.write(out, it)
         }
+        out.endArray()
 
         out.endObject()
     }
