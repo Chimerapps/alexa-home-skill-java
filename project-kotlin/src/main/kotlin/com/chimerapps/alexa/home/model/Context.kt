@@ -17,7 +17,11 @@
 
 package com.chimerapps.alexa.home.model
 
-import com.fasterxml.jackson.annotation.JsonFormat
+import com.google.gson.Gson
+import com.google.gson.TypeAdapter
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
+import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -28,7 +32,57 @@ data class Context(val properties: List<Property>)
 
 data class Property(val namespace: String,
                     val name: String,
-                    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "YYYY-MM-DD'T'hh:mm:ss.SS'Z'", timezone = "UTC")
                     val timeOfSample: Date,
                     val uncertaintyInMilliseconds: Long,
                     val value: Any)
+
+object PropertyAdapter : TypeAdapter<Property>() {
+
+    private val gson = Gson()
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+
+    init {
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
+    }
+
+    override fun write(out: JsonWriter, value: Property) {
+        out.beginObject()
+        out.name("namespace").value(value.namespace)
+        out.name("name").value(value.name)
+        out.name("timeOfSample").value(dateFormat.format(value.timeOfSample))
+        out.name("uncertaintyInMilliseconds").value(value.uncertaintyInMilliseconds)
+
+        out.name("value")
+        gson.toJson(gson.toJsonTree(value.value), out)
+        out.endObject()
+    }
+
+    override fun read(`in`: JsonReader?): Property {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+}
+
+object ContextAdapter : TypeAdapter<Context>() {
+
+    override fun read(source: JsonReader): Context {
+        TODO("Not implemented")
+    }
+
+    override fun write(out: JsonWriter, value: Context?) {
+        if (value == null) {
+            out.nullValue()
+            return
+        }
+
+        out.beginObject()
+
+        out.name("properties")
+        value.properties.forEach {
+            PropertyAdapter.write(out, it)
+        }
+
+        out.endObject()
+    }
+
+}

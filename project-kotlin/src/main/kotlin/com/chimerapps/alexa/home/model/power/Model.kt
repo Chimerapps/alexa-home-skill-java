@@ -33,13 +33,23 @@ data class PowerState(val value: PowerValue, val uncertaintyInMilliseconds: Long
     enum class PowerValue {
         ON, OFF
     }
+
+    fun toProperty(): Property {
+        return Property(
+                namespace = AlexaPowerController.namespace,
+                name = "powerState",
+                timeOfSample = time,
+                uncertaintyInMilliseconds = uncertaintyInMilliseconds,
+                value = value.name
+        )
+    }
 }
 
 interface PowerController {
 
-    fun turnOn(token: String, endpointId: String): PowerState
+    fun turnOn(token: String, endpointId: String): List<Property>
 
-    fun turnOff(token: String, endpointId: String): PowerState
+    fun turnOff(token: String, endpointId: String): List<Property>
 
 }
 
@@ -48,7 +58,7 @@ class PowerControlHandler(val delegate: PowerController) : ActionHandler<EmptyPa
     override fun handleAction(directive: Directive,
                               controller: Controller,
                               action: String,
-                              payload: EmptyPayload): Event {
+                              payload: EmptyPayload): EventWithContext {
         val token = directive.endpoint!!.scope.asType<Scopes.BearerScope>(Scope.ScopeType.BEARER).token
         val id = directive.endpoint.endpointId
 
@@ -58,16 +68,11 @@ class PowerControlHandler(val delegate: PowerController) : ActionHandler<EmptyPa
             else -> throw UnsupportedOperationError(directive, "$action not supported")
         }
 
-        return Event(header = directive.header.toResponseWithNewId(),
-                payload = EmptyPayload(),
-                endpoint = directive.endpoint,
-                context = Context(listOf(Property(
-                        namespace = controller.namespace,
-                        name = "powerState",
-                        timeOfSample = result.time,
-                        uncertaintyInMilliseconds = result.uncertaintyInMilliseconds,
-                        value = result.value.name
-                ))))
+        return EventWithContext(
+                event = Event(header = directive.header.toResponseWithNewId("Response").copy(namespace = "Alexa"),
+                        payload = EmptyPayload(),
+                        endpoint = directive.endpoint.copy(cookie = null)),
+                context = Context(result))
     }
 
 }

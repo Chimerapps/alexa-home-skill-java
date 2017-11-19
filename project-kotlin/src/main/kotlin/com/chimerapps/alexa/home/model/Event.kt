@@ -21,4 +21,6 @@ package com.chimerapps.alexa.home.model
  * @author Nicola Verbeeck
  * @date 08/11/2017.
  */
-data class Event(val header: ResponseHeader, val payload: Any, val context: Context?, val endpoint: Endpoint?)
+data class Event(val header: Header, val payload: Any, val endpoint: Endpoint?)
+
+data class EventWithContext(val event: Event, val context: Context?)

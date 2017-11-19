@@ -17,19 +17,24 @@
 
 package com.chimerapps.alexa.home.model
 
+import com.chimerapps.alexa.home.utils.readStringMap
+import com.chimerapps.alexa.home.utils.value
+import com.google.gson.TypeAdapter
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
+
 /**
  * @author Nicola Verbeeck
  * @date 07/11/2017.
  */
 data class Endpoint(val scope: Scope,
                     val endpointId: String,
-                    val cookie: Map<String, String>)
+                    val cookie: Map<String, String?>?)
 
 sealed class Scopes {
-    class BearerScope(token: String) : Scope() {
+    class BearerScope(scope: Scope) : Scope() {
         init {
-            put("token", token)
-            put("type", Scope.ScopeType.BEARER.typeName)
+            putAll(scope)
         }
 
         val token: String
@@ -37,10 +42,10 @@ sealed class Scopes {
     }
 }
 
-open class Scope : HashMap<String, String>() {
+open class Scope : HashMap<String, String?>() {
 
     enum class ScopeType(val typeName: String, val creator: ((Scope) -> Any)?) {
-        UNKNOWN("", null), BEARER("BearerToken", { it as Scopes.BearerScope })
+        UNKNOWN("", null), BEARER("BearerToken", { Scopes.BearerScope(it) })
     }
 
     fun type(): ScopeType {
@@ -53,4 +58,62 @@ open class Scope : HashMap<String, String>() {
         return type.creator!!.invoke(this) as T
     }
 
+}
+
+object ScopeAdapter : TypeAdapter<Scope>() {
+
+    override fun read(source: JsonReader): Scope {
+        source.beginObject()
+
+        val scope = Scope()
+        while (source.hasNext()) {
+            scope.put(source.nextName(), source.nextString())
+        }
+
+        source.endObject()
+        return scope
+    }
+
+    override fun write(out: JsonWriter, value: Scope) {
+        out.value(value)
+    }
+}
+
+object EndpointAdapter : TypeAdapter<Endpoint>() {
+
+    override fun read(source: JsonReader): Endpoint {
+        source.beginObject()
+
+        var scope: Scope? = null
+        var endpointId: String? = null
+        var cookie: Map<String, String?>? = null
+
+        while (source.hasNext()) {
+            when (source.nextName()) {
+                "scope" -> scope = ScopeAdapter.read(source)
+                "endpointId" -> endpointId = source.nextString()
+                "cookie" -> cookie = source.readStringMap()
+                else -> source.skipValue()
+            }
+        }
+
+        source.endObject()
+        return Endpoint(scope!!, endpointId!!, cookie)
+    }
+
+    override fun write(out: JsonWriter, value: Endpoint?) {
+        if (value == null) {
+            out.nullValue()
+            return
+        }
+        out.beginObject()
+
+        out.name("scope")
+        ScopeAdapter.write(out, value.scope)
+
+        out.name("endpointId").value(value.endpointId)
+        out.name("cookie").value(value.cookie)
+
+        out.endObject()
+    }
 }

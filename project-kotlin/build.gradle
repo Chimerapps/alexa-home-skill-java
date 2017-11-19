@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.1.51'
+    ext.kotlin_version = '1.1.60'
     repositories {
         mavenCentral()
     }
@@ -28,11 +28,14 @@ sourceSets {
 dependencies {
     compile 'com.amazonaws:aws-lambda-java-core:1.1.0'
 
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.8.7"
     compile 'org.slf4j:slf4j-api:1.7.24'
+    compile 'com.google.code.gson:gson:2.8.2'
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+
+    testCompile group: 'junit', name: 'junit', version: '4.4'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.12.0'
 }
 
 def artifactVersion = '3.0.0-alpha1'

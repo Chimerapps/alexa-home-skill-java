@@ -51,11 +51,15 @@ enum class DisplayCategory {
 
 data class NameValuePair(val name: String)
 
+data class Properties(
+        val supported: Collection<NameValuePair>,
+        val proactivelyReported: Boolean?,
+        val retrievable: Boolean?
+)
+
 data class Capability(
         val type: String,
         val `interface`: String,
         val version: String,
-        val supported: Collection<NameValuePair>?,
-        val proactivelyReported: Boolean?,
-        val retrievable: Boolean?
+        val properties: Properties
 )

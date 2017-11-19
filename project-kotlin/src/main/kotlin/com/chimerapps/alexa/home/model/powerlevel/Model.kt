@@ -17,6 +17,10 @@
 
 package com.chimerapps.alexa.home.model.powerlevel
 
+import com.chimerapps.alexa.home.model.AlexaPowerLevelController
+import com.chimerapps.alexa.home.model.Property
+import java.util.*
+
 /**
  * @param powerLevel Range: [0, 100]
  */
@@ -36,3 +40,17 @@ data class AdjustPowerLevelPayload(
          */
         val powerLevelDelta: Int
 )
+
+data class PowerLevelState(val value: Int, val uncertaintyInMilliseconds: Long, val time: Date) {
+
+    fun toProperty(): Property {
+        return Property(
+                namespace = AlexaPowerLevelController.namespace,
+                name = "powerLevel",
+                timeOfSample = time,
+                uncertaintyInMilliseconds = uncertaintyInMilliseconds,
+                value = value
+        )
+    }
+
+}

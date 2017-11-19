@@ -22,7 +22,6 @@ import com.chimerapps.alexa.home.error.SmartHomeError
 import com.chimerapps.alexa.home.error.UnsupportedOperationError
 import com.chimerapps.alexa.home.model.*
 import com.chimerapps.alexa.home.model.discovery.DiscoveryResultPayload
-import com.chimerapps.alexa.home.utils.readValue
 
 /**
  * @author Nicola Verbeeck
@@ -44,17 +43,18 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
             : DiscoveryResultPayload = throw UnsupportedOperationError(directive, "Operation not supported")
 
     @Throws(SmartHomeError::class)
-    override fun onDiscovery(request: Directive, context: Context): Event {
-        val actualRequest = mapper.readValue<DiscoveryPayload>(request.payload)
-        return Event(header = request.header.toResponseWithNewId(),
-                payload = handleDiscovery(request,
-                        actualRequest.scope.asType<Scopes.BearerScope>(Scope.ScopeType.BEARER).token, context),
-                endpoint = null,
+    override fun onDiscovery(request: Directive, context: Context): EventWithContext {
+        val actualRequest = DiscoveryPayload.fromPayload(request.payload!!)
+        return EventWithContext(
+                event = Event(header = request.header.toResponseWithNewId("Discover.Response"),
+                        payload = handleDiscovery(request,
+                                actualRequest.scope.asType<Scopes.BearerScope>(Scope.ScopeType.BEARER).token, context),
+                        endpoint = null),
                 context = null
         )
     }
 
-    override fun onControl(controller: Controller, request: Directive, context: Context): Event {
+    override fun onControl(controller: Controller, request: Directive, context: Context): EventWithContext {
         val name = request.header.name
         val action = controller.actions.find { it.name == name }
                 ?: throw UnsupportedOperationError(request, "$name not supported")
@@ -63,7 +63,7 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
                 ?: throw UnsupportedOperationError(request, "$name not supported")
 
         @Suppress("UNCHECKED_CAST")
-        val mapped = mapper.treeToValue<Any>(request.payload, action.inputType as Class<Any>)
+        val mapped = gson.fromJson<Any>(request.payload, action.inputType as Class<Any>)
         return actionHandler.handleAction(request, controller, name, mapped)
     }
 
@@ -82,6 +82,6 @@ abstract class SmartHomeRequestHandler : RawSmartHomeRequestHandler() {
 
 interface ActionHandler<T> {
 
-    fun handleAction(directive: Directive, controller: Controller, action: String, payload: T): Event
+    fun handleAction(directive: Directive, controller: Controller, action: String, payload: T): EventWithContext
 
 }

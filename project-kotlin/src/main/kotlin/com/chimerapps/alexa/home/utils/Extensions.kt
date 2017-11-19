@@ -17,13 +17,50 @@
 
 package com.chimerapps.alexa.home.utils
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.gson.Gson
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonToken
+import com.google.gson.stream.JsonWriter
 
 /**
  * @author Nicola Verbeeck
  * Date 10/03/2017.
  */
-inline fun <reified T> ObjectMapper.readValue(payload: JsonNode): T {
-    return treeToValue(payload, T::class.java)
+inline fun <reified T> Gson.readJson(text: String): T {
+    return fromJson(text, T::class.java)
+}
+
+fun JsonReader.nextStringOrNull(): String? {
+    if (peek() == JsonToken.NULL)
+        return null
+    return nextString()
+}
+
+fun JsonReader.readStringMap(): Map<String, String?>? {
+    if (peek() == JsonToken.NULL)
+        return null
+
+    beginObject()
+
+    val map = hashMapOf<String, String?>()
+
+    while (hasNext()) {
+        map.put(nextName(), nextStringOrNull())
+    }
+
+    endObject()
+
+    return map
+}
+
+fun JsonWriter.value(map: Map<String, String?>?): JsonWriter {
+    if (map == null) {
+        nullValue()
+    } else {
+        beginObject()
+        map.forEach { name(it.key).value(it.value) }
+        endObject()
+    }
+
+    return this
 }

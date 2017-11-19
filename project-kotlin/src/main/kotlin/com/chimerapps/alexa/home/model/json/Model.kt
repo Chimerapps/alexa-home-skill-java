@@ -15,24 +15,9 @@
  *
  */
 
-package com.chimerapps.alexa.home.model
-
-import com.google.gson.JsonObject
+package com.chimerapps.alexa.home.model.json
 
 /**
  * @author Nicola Verbeeck
- * @date 07/11/2017.
+ * @date 12/11/2017.
  */
-data class DiscoveryPayload(val scope: Scopes.BearerScope) {
-
-    companion object {
-        fun fromPayload(tree: JsonObject): DiscoveryPayload {
-            val scopeObj = tree.get("scope").asJsonObject
-            val tokenStr = scopeObj.get("token").asString
-            return DiscoveryPayload(Scopes.BearerScope(Scope().apply { put("token", tokenStr) }))
-        }
-    }
-
-}
-
-class EmptyPayload

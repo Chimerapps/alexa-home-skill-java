@@ -17,6 +17,7 @@
 
 package com.chimerapps.alexa.home.model.channel
 
+
 /**
  * @author Nicola Verbeeck
  * @date 12/11/2017.

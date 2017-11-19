@@ -21,16 +21,11 @@ import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler
 import com.chimerapps.alexa.home.error.DriverInternalError
 import com.chimerapps.alexa.home.error.SmartHomeError
-import com.chimerapps.alexa.home.model.Controller
-import com.chimerapps.alexa.home.model.Directive
-import com.chimerapps.alexa.home.model.Event
-import com.chimerapps.alexa.home.model.controllers
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
+import com.chimerapps.alexa.home.model.*
+import com.chimerapps.alexa.home.utils.readJson
+import com.google.gson.GsonBuilder
 import org.slf4j.LoggerFactory
 import java.io.InputStream
-import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 
@@ -41,10 +36,16 @@ import java.io.OutputStreamWriter
 abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
 
     companion object {
-        val mapper = jacksonObjectMapper().let {
-            it.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            it
-        }
+        val gson = GsonBuilder()
+                .registerTypeAdapter(Directive::class.java, DirectiveAdapter)
+                .registerTypeAdapter(DirectiveRequest::class.java, DirectiveRequestAdapter)
+                .registerTypeAdapter(Header::class.java, HeaderAdapter)
+                .registerTypeAdapter(EndpointAdapter::class.java, EndpointAdapter)
+                .registerTypeAdapter(Scope::class.java, ScopeAdapter)
+                .registerTypeAdapter(Context::class.java, ContextAdapter)
+                .registerTypeAdapter(PropertyAdapter::class.java, PropertyAdapter)
+                .create()
+
         private val logger = LoggerFactory.getLogger(RawSmartHomeRequestHandler::class.java)
 
         private const val NAMESPACE_DISCOVERY = "Alexa.Discovery"
@@ -56,10 +57,10 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
     }
 
     @Throws(SmartHomeError::class)
-    protected abstract fun onDiscovery(request: Directive, context: Context): Event
+    protected abstract fun onDiscovery(request: Directive, context: Context): EventWithContext
 
     @Throws(SmartHomeError::class)
-    protected abstract fun onControl(controller: Controller, request: Directive, context: Context): Event
+    protected abstract fun onControl(controller: Controller, request: Directive, context: Context): EventWithContext
 
     override fun handleRequest(input: InputStream, output: OutputStream, context: Context) {
         try {
@@ -70,25 +71,31 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
         } catch (e: SmartHomeError) {
             logger.warn("Error while executing request: {}", e)
             sendReply(output.buffered(), makeError(e))
+        } catch (e: Throwable) {
+            logger.error("Failed to handle request:", e)
         }
     }
 
-    private fun sendReply(output: OutputStream, reply: Event) {
+    protected open fun sendReply(output: OutputStream, reply: EventWithContext) {
         OutputStreamWriter(output, Charsets.UTF_8).use {
             if (logger.isDebugEnabled) {
-                val replyString = mapper.writeValueAsString(reply)
+                val replyString = gson.toJson(reply)
                 logger.debug("Writing reply: {}", replyString)
                 it.write(replyString)
             } else {
-                mapper.writeValue(it, reply)
+                gson.toJson(reply, it)
             }
         }
     }
 
-    private fun doHandleRequest(input: InputStream, context: Context): Event {
-        val request = InputStreamReader(input, Charsets.UTF_8).use {
-            mapper.readValue<Directive>(it)
+    private fun doHandleRequest(input: InputStream, context: Context): EventWithContext {
+        logger.debug("Reading request from json")
+        val text = input.bufferedReader().use { it.readText() }
+        logger.debug("Request read, transforming")
+        if (logger.isDebugEnabled) {
+            logger.debug("Request json: {}", text)
         }
+        val request = gson.readJson<DirectiveRequest>(text).directive
         logger.debug("Lambda Request: {}", request)
         checkVersion(request)
 
@@ -120,10 +127,11 @@ abstract class RawSmartHomeRequestHandler : RequestStreamHandler {
         }
     }
 
-    private fun makeError(e: SmartHomeError): Event {
-        return Event(header = e.directive.header.toResponseWithName(name = "ErrorResponse"),
-                endpoint = e.directive.endpoint,
-                payload = e.payload,
+    private fun makeError(e: SmartHomeError): EventWithContext {
+        return EventWithContext(
+                event = Event(header = e.directive.header.toResponseWithName(name = "ErrorResponse"),
+                        endpoint = e.directive.endpoint,
+                        payload = e.payload),
                 context = null)
     }
 

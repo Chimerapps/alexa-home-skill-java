@@ -17,27 +17,31 @@
 
 package com.chimerapps.alexa.home.model
 
+import com.chimerapps.alexa.home.utils.nextStringOrNull
+import com.google.gson.TypeAdapter
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
 import java.util.*
 
 /**
  * @author Nicola Verbeeck
  * @date 07/11/2017.
  */
-data class DirectiveHeader(val namespace: String,
-                           val name: String,
-                           val messageId: String,
-                           val payloadVersion: String,
-                           val correlationToken: String) {
-    fun toResponseWithName(name: String): ResponseHeader {
-        return ResponseHeader(namespace = namespace,
+data class Header(val namespace: String,
+                  val name: String,
+                  val messageId: String,
+                  val payloadVersion: String,
+                  val correlationToken: String?) {
+    fun toResponseWithName(name: String): Header {
+        return Header(namespace = namespace,
                 name = name,
                 messageId = messageId,
                 correlationToken = correlationToken,
                 payloadVersion = payloadVersion)
     }
 
-    fun toResponseWithNewId(): ResponseHeader {
-        return ResponseHeader(namespace = namespace,
+    fun toResponseWithNewId(name: String): Header {
+        return Header(namespace = namespace,
                 name = name,
                 messageId = UUID.randomUUID().toString(),
                 correlationToken = correlationToken,
@@ -45,8 +49,43 @@ data class DirectiveHeader(val namespace: String,
     }
 }
 
-data class ResponseHeader(val namespace: String,
-                          val name: String,
-                          val messageId: String,
-                          val payloadVersion: String,
-                          val correlationToken: String? = null)
+object HeaderAdapter : TypeAdapter<Header>() {
+
+    override fun read(source: JsonReader): Header {
+        source.beginObject()
+
+        var namespace: String? = null
+        var name: String? = null
+        var messageId: String? = null
+        var payloadVersion: String? = null
+        var correlationToken: String? = null
+
+        while (source.hasNext()) {
+            when (source.nextName()) {
+                "namespace" -> namespace = source.nextString()
+                "name" -> name = source.nextString()
+                "messageId" -> messageId = source.nextString()
+                "payloadVersion" -> payloadVersion = source.nextString()
+                "correlationToken" -> correlationToken = source.nextStringOrNull()
+                else -> source.skipValue()
+            }
+        }
+
+        source.endObject()
+
+        return Header(namespace!!, name!!, messageId!!, payloadVersion!!, correlationToken)
+    }
+
+    override fun write(out: JsonWriter, value: Header) {
+        out.beginObject()
+
+        out.name("namespace").value(value.namespace)
+        out.name("name").value(value.name)
+        out.name("messageId").value(value.messageId)
+        out.name("payloadVersion").value(value.payloadVersion)
+        out.name("correlationToken").value(value.correlationToken)
+
+        out.endObject()
+    }
+
+}
