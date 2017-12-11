@@ -47,9 +47,9 @@ data class PowerState(val value: PowerValue, val uncertaintyInMilliseconds: Long
 
 interface PowerController {
 
-    fun turnOn(token: String, endpointId: String): List<Property>
+    fun turnOn(token: String, endpointId: String, cookie: Map<String, String?>): List<Property>
 
-    fun turnOff(token: String, endpointId: String): List<Property>
+    fun turnOff(token: String, endpointId: String, cookie: Map<String, String?>): List<Property>
 
 }
 
@@ -61,10 +61,11 @@ class PowerControlHandler(val delegate: PowerController) : ActionHandler<EmptyPa
                               payload: EmptyPayload): EventWithContext {
         val token = directive.endpoint!!.scope.asType<Scopes.BearerScope>(Scope.ScopeType.BEARER).token
         val id = directive.endpoint.endpointId
+        val cookie = directive.endpoint.cookie ?: emptyMap()
 
         val result = when (action) {
-            AlexaPowerController.NAME_TURN_ON -> delegate.turnOn(token, id)
-            AlexaPowerController.NAME_TURN_OFF -> delegate.turnOff(token, id)
+            AlexaPowerController.NAME_TURN_ON -> delegate.turnOn(token, id, cookie)
+            AlexaPowerController.NAME_TURN_OFF -> delegate.turnOff(token, id, cookie)
             else -> throw UnsupportedOperationError(directive, "$action not supported")
         }
 
