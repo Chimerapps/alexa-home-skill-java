@@ -17,7 +17,10 @@
 
 package com.chimerapps.alexa.home.model.lock
 
-import com.chimerapps.alexa.home.model.EmptyPayload
+import com.chimerapps.alexa.home.ActionHandler
+import com.chimerapps.alexa.home.error.UnsupportedOperationError
+import com.chimerapps.alexa.home.model.*
+import java.util.*
 
 /**
  * @author Nicola Verbeeck
@@ -25,3 +28,53 @@ import com.chimerapps.alexa.home.model.EmptyPayload
  */
 typealias LockPayload = EmptyPayload
 typealias UnlockPayload = EmptyPayload
+
+data class LockState(val value: LockValue, val uncertaintyInMilliseconds: Long, val time: Date) {
+
+    enum class LockValue {
+        LOCKED, UNLOCKED, JAMMED
+    }
+
+    fun toProperty(): Property {
+        return Property(
+                namespace = AlexaLockController.namespace,
+                name = "percentage",
+                timeOfSample = time,
+                uncertaintyInMilliseconds = uncertaintyInMilliseconds,
+                value = value.name
+        )
+    }
+}
+
+
+interface LockController {
+
+    fun lock(token: String, endpointId: String): List<Property>
+
+    fun unlock(token: String, endpointId: String): List<Property>
+
+}
+
+class LockControlHandler(val delegate: LockController) : ActionHandler<Any> {
+
+    override fun handleAction(directive: Directive,
+                              controller: Controller,
+                              action: String,
+                              payload: Any): EventWithContext {
+        val token = directive.endpoint!!.scope.asType<Scopes.BearerScope>(Scope.ScopeType.BEARER).token
+        val id = directive.endpoint.endpointId
+
+        val result = when (action) {
+            AlexaLockController.NAME_LOCK -> delegate.lock(token, id)
+            AlexaLockController.NAME_UNLOCK -> delegate.unlock(token, id)
+            else -> throw UnsupportedOperationError(directive, "$action not supported")
+        }
+
+        return EventWithContext(
+                event = Event(header = directive.header.toResponseWithNewId("Response").copy(namespace = "Alexa"),
+                        payload = EmptyPayload(),
+                        endpoint = directive.endpoint.copy(cookie = null)),
+                context = Context(result))
+    }
+
+}

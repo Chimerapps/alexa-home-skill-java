@@ -17,6 +17,11 @@
 
 package com.chimerapps.alexa.home.model.percentage
 
+import com.chimerapps.alexa.home.ActionHandler
+import com.chimerapps.alexa.home.error.UnsupportedOperationError
+import com.chimerapps.alexa.home.model.*
+import java.util.*
+
 
 /**
  * @param percentage Range: [0, 100]
@@ -37,3 +42,48 @@ data class AdjustPercentagePayload(
          */
         val percentageDelta: Int
 )
+
+data class PercentageState(val value: Int, val uncertaintyInMilliseconds: Long, val time: Date) {
+    fun toProperty(): Property {
+        return Property(
+                namespace = AlexaPercentageController.namespace,
+                name = "percentage",
+                timeOfSample = time,
+                uncertaintyInMilliseconds = uncertaintyInMilliseconds,
+                value = value
+        )
+    }
+}
+
+
+interface PercentageController {
+
+    fun setPercentage(token: String, endpointId: String, percentage: Int): List<Property>
+
+    fun adjustPercentage(token: String, endpointId: String, delta: Int): List<Property>
+
+}
+
+class PercentageControlHandler(val delegate: PercentageController) : ActionHandler<Any> {
+
+    override fun handleAction(directive: Directive,
+                              controller: Controller,
+                              action: String,
+                              payload: Any): EventWithContext {
+        val token = directive.endpoint!!.scope.asType<Scopes.BearerScope>(Scope.ScopeType.BEARER).token
+        val id = directive.endpoint.endpointId
+
+        val result = when (action) {
+            AlexaPercentageController.NAME_SET_PERCENTAGE -> delegate.setPercentage(token, id, (payload as SetPercentagePayload).percentage)
+            AlexaPercentageController.NAME_ADJUST_PERCENTAGE -> delegate.adjustPercentage(token, id, (payload as AdjustPercentagePayload).percentageDelta)
+            else -> throw UnsupportedOperationError(directive, "$action not supported")
+        }
+
+        return EventWithContext(
+                event = Event(header = directive.header.toResponseWithNewId("Response").copy(namespace = "Alexa"),
+                        payload = EmptyPayload(),
+                        endpoint = directive.endpoint.copy(cookie = null)),
+                context = Context(result))
+    }
+
+}
